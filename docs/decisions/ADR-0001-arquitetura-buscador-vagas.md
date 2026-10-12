@@ -169,7 +169,9 @@ confiável e a porta 25 costuma estar bloqueada em runners de cloud.
 - **Pontuação de compatibilidade** de 1 a 5 contra `config/perfil.yaml`, com saída
   estruturada. A referência de método é o `career-ops`, que pontua cada vaga contra o CV
   com LLM, e o `Resume-Matcher`.
-- **LLM:** **API da Claude** (decisão do Jefferson), chamada pelo serviço no GitHub Actions.
+- **LLM:** **API da Claude** com o modelo **Claude Haiku 5.5** (`claude-haiku-5-5`), o mais
+  barato da API (decisão do Jefferson). É chamado pelo serviço no GitHub Actions, para
+  classificar, pontuar e escrever os emails.
 - **Email de candidatura:**
   - **Não existe texto fixo.** Cada email é escrito do zero pela API da Claude para aquela
     vaga, cruzando a descrição da vaga com `config/perfil.yaml`.
@@ -295,7 +297,7 @@ As decisões abaixo são financeiras e ficam com o Jefferson.
 
 | Item | Opções |
 |---|---|
-| Modelo Claude para pontuar vagas e gerar emails (~100 por semana) | A API da Claude já foi escolhida. Falta o modelo: um mais barato (família Haiku) para classificar e pontuar e um mais capaz (família Sonnet) para escrever os emails, ou um só modelo para tudo. Os preços são consultados na documentação oficial na hora da decisão. |
+| Modelo Claude | **Decidido: Claude Haiku 5.5** (`claude-haiku-5-5`), US$ 0,10 por milhão de tokens de entrada e US$ 0,50 de saída (prompts até 100 mil tokens; tabela oficial de 2026-10-06). A Batch API dá 50% de desconto nas tarefas que não precisam de resposta imediata. Se a qualidade dos emails não bastar, a troca para um modelo mais capaz volta a ser decisão do Jefferson. |
 | Busca de emails | (a) só sites das empresas, grátis; (b) Hunter.io grátis, 50 por mês; (c) Hunter.io pago |
 | Fontes pagas (JSearch, SerpApi) | Não incluídas. Só entram se as grátis não bastarem. |
 
@@ -303,11 +305,10 @@ As decisões abaixo são financeiras e ficam com o Jefferson.
 
 ## Em aberto
 
-1. **Modelo Claude** a usar (ver Ressalva).
-2. **Interface do assistente de resposta:** comando no Claude Code (proposta) ou outra.
-3. **Validação ao vivo dos endpoints** marcados como "a validar" no anexo, antes de
+1. **Interface do assistente de resposta:** comando no Claude Code (proposta) ou outra.
+2. **Validação ao vivo dos endpoints** marcados como "a validar" no anexo, antes de
    implementar cada coletor.
-4. **Achado, não está no backlog:** o CV em PDF está desatualizado em relação ao portfólio.
+3. **Achado, não está no backlog:** o CV em PDF está desatualizado em relação ao portfólio.
    Faltam o contrato atual (Bob Burnquist Holdings), Next.js, Supabase, a stack AWS completa,
    OCI e a formação em agentes.
 
