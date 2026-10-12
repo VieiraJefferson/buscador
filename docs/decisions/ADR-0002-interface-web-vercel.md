@@ -113,8 +113,10 @@ Fonte: `Portifolio/src/styles/global.css` e `src/components/core/SmoothScroll.js
 - **RLS ligado em todas as tabelas desde o primeiro dia**, com política por `owner_id`. Toda
   consulta leva também o filtro explícito por dono (contrato APOIO: não presumir o isolamento
   pela camada do banco).
-- **Coletor:** grava com a chave de serviço do Supabase, que contorna o RLS. Ela fica só nos
-  GitHub Secrets e nunca no Vercel. As gravações levam `owner_id` explícito.
+- **Coletor:** grava com um usuário Postgres próprio (`coletor`), com permissões só nas
+  tabelas que ele escreve e sem acesso a `candidaturas`. A senha fica no `.env` local e nos
+  GitHub Secrets, nunca no Vercel. As gravações levam `owner_id` explícito. A chave secreta
+  (service role) do Supabase não é usada.
 - **Chave da API da Claude:** fica só nas variáveis de ambiente do servidor no Vercel e nunca
   vai para o navegador. Nenhuma variável `NEXT_PUBLIC_` contém segredo.
 - **Assistente de resposta:**
@@ -166,8 +168,8 @@ buscador/
 - Mais peças para manter: Supabase, Vercel e autenticação.
 - O site fica exposto à internet, o que exige login, RLS e cabeçalhos de segurança desde o
   primeiro dia.
-- A chave de serviço do Supabase no GitHub Actions é um segredo de alto impacto e precisa de
-  cuidado.
+- A senha do usuário `coletor` no GitHub Actions é um segredo. O impacto de um vazamento
+  fica limitado às tabelas que ele grava, e o Gitleaks vigia o repositório.
 - O tamanho de um link `mailto:` tem limite prático. Emails muito longos podem precisar do
   botão "Copiar" em vez de "Abrir no app".
 
@@ -186,5 +188,8 @@ buscador/
 ## Em aberto
 
 1. Versão exata do Next.js e das bibliotecas, confirmada no plano de implementação.
-2. Esquema das tabelas (vagas, empresas, contatos, candidaturas), num plano próprio.
+2. ~~Esquema das tabelas~~: definido em
+   [`docs/planos/2026-10-12-esquema-banco.md`](../planos/2026-10-12-esquema-banco.md).
+   O coletor usa um usuário Postgres `coletor` com acesso restrito; a chave secreta (service
+   role) do Supabase não é usada.
 3. Domínio: o subdomínio padrão do Vercel ou um domínio próprio.

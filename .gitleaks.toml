@@ -1,0 +1,6 @@
+# Configuração do Gitleaks: regras padrão do projeto, sem exceções por enquanto.
+# Uma exceção só entra aqui com motivo escrito ao lado.
+title = "buscador"
+
+[extend]
+useDefault = true

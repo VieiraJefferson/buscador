@@ -1,0 +1,25 @@
+name: gitleaks
+
+# Procura segredos no histórico inteiro a cada push e pull request.
+# Usa a imagem oficial do Gitleaks (versão fixa), sem depender da gitleaks-action.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Procurar segredos
+        run: >
+          docker run --rm -v "$GITHUB_WORKSPACE:/repo" ghcr.io/gitleaks/gitleaks:v8.30.1
+          git /repo --config /repo/.gitleaks.toml --redact --verbose --exit-code 1
