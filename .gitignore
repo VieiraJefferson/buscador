@@ -1,0 +1,36 @@
+# Segredos e credenciais
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+token*.json
+client_secret*.json
+secrets/
+
+# Dados pessoais (CV, contatos, relatórios gerados)
+*.pdf
+*.docx
+/cv/
+/data/
+/relatorios/
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Claude Code (configuração local da máquina)
+.claude/settings.local.json
+
+# Sistema
+.DS_Store
+Thumbs.db
