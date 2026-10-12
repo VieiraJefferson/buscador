@@ -183,9 +183,8 @@ confiável e a porta 25 costuma estar bloqueada em runners de cloud.
 
 - O Jefferson cola o email recebido. O assistente devolve o rascunho da resposta, usando o
   perfil, o histórico da candidatura e a disponibilidade dele como contexto.
-- **Proposta de interface:** um comando dentro deste repositório no Claude Code (por exemplo
-  `/responder`), sem servidor e sem custo de infraestrutura. A interface final será decidida
-  num plano próprio.
+- **Interface:** decidida no [ADR-0002](ADR-0002-interface-web-vercel.md). É um site em
+  Next.js no Vercel, usado pelo celular.
 - **Segurança:** o email colado é **dado, nunca instrução** (OWASP LLM01, injeção de prompt
   indireta). O assistente não tem ferramentas de envio. O resultado é só texto para o
   Jefferson revisar.
@@ -198,7 +197,7 @@ confiável e a porta 25 costuma estar bloqueada em runners de cloud.
 | Agendamento | **GitHub Actions** `schedule`, uma vez por dia, em **repositório privado** |
 | Relatório | **Email**, enviado por uma **conta Gmail dedicada** para ela mesma; o Jefferson ativa as notificações dessa conta. O email pessoal fica fora. |
 | Envio do relatório | SMTP do Gmail com **App Password** da conta dedicada, guardada em GitHub Secrets |
-| Estado entre execuções | Banco SQLite das vagas já vistas, guardado em cache ou artefato do Actions. Sem commits automáticos. |
+| Estado entre execuções | **Substituído pelo [ADR-0002](ADR-0002-interface-web-vercel.md):** banco Supabase na região UE, compartilhado com a interface web. Sem commits automáticos. |
 | Segredos | GitHub Secrets (App Password da conta dedicada e chave da API da Claude). Nada em arquivo versionado (ver `.gitignore`). |
 
 **Por que App Password e não OAuth:** um projeto OAuth do Google em modo "Testing" tem
@@ -275,7 +274,7 @@ Jefferson.
 - Só contato direto com quem contrata, que é o objetivo do produto.
 - Fontes legais e grátis, sem risco para contas pessoais.
 - O Jefferson tem controle total do que sai em nome dele.
-- Custo de infraestrutura zero (GitHub Actions privado e Gmail dedicado).
+- Custo de infraestrutura zero (GitHub Actions privado, Gmail dedicado e, pelo ADR-0002, planos grátis do Vercel e do Supabase).
 
 **Negativas e trade-offs**
 
@@ -305,10 +304,9 @@ As decisões abaixo são financeiras e ficam com o Jefferson.
 
 ## Em aberto
 
-1. **Interface do assistente de resposta:** comando no Claude Code (proposta) ou outra.
-2. **Validação ao vivo dos endpoints** marcados como "a validar" no anexo, antes de
+1. **Validação ao vivo dos endpoints** marcados como "a validar" no anexo, antes de
    implementar cada coletor.
-3. **Achado, não está no backlog:** o CV em PDF está desatualizado em relação ao portfólio.
+2. **Achado, não está no backlog:** o CV em PDF está desatualizado em relação ao portfólio.
    Faltam o contrato atual (Bob Burnquist Holdings), Next.js, Supabase, a stack AWS completa,
    OCI e a formação em agentes.
 
