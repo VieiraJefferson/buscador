@@ -115,11 +115,11 @@ usa o ATS **só para descobrir a vaga**; o contato é feito por email, direto co
 | País | Fonte | Acesso |
 |---|---|---|
 | ES | InfoJobs API (`api.infojobs.net/api/9/offer`, filtro `teleworking`) | Registro grátis de desenvolvedor |
-| ES | Tecnoempleo (RSS por busca, `te=teletrabajo`) | Público |
-| DE | Bundesagentur für Arbeit, Jobsuche (`arbeitszeit=ho`) | Chave pública fixa |
+| ES | Tecnoempleo (RSS gerado a partir de uma busca no site; sem URL fixa) | Público |
+| DE | Bundesagentur für Arbeit, Jobsuche **v6** (a v4 dá 403) | Chave pública fixa |
 | DE / UE | Arbeitnow (`arbeitnow.com/api/job-board-api`) | Público |
 | PT | ITJobs.pt (`api.itjobs.pt`, `workModel`, traz email da empresa) | Chave grátis |
-| PT / UE | Landing.jobs (`landing.jobs/api/v1/jobs`) | Público (a validar) |
+| PT / UE | Landing.jobs (`landing.jobs/api/v1/jobs`) | Público (validado em 2026-10-12) |
 | UE | Adzuna (es, nl, de, at, be, it, fr, pl; não cobre PT) | Chave grátis, 250 pedidos/dia |
 | UE remoto | Himalayas (`?country=ES`), Remotive | Público, com atribuição |
 
@@ -151,7 +151,8 @@ Aplicada em camadas, da mais barata para a mais cara:
 
 Ordem de busca:
 
-1. Email que a própria fonte já traz (ITJobs `company.email`, JOIN `contactEmail`).
+1. Email que a própria fonte já traz: Recruitee `mailbox_email` (caixa de candidaturas da
+   empresa, presente em todas as vagas testadas), ITJobs `company.email`, JOIN `contactEmail`.
 2. Páginas públicas da empresa: `/careers`, `/jobs`, `/contact`, `/impressum` (obrigatório
    na Alemanha) e `/aviso-legal` (obrigatório na Espanha, LSSI art. 10).
 3. Padrões genéricos, confirmados por registro MX: `careers@`, `jobs@`, `talent@`, `hr@`,
@@ -304,9 +305,10 @@ As decisões abaixo são financeiras e ficam com o Jefferson.
 
 ## Em aberto
 
-1. **Validação ao vivo dos endpoints** marcados como "a validar" no anexo, antes de
-   implementar cada coletor.
-2. **Achado, não está no backlog:** o CV em PDF está desatualizado em relação ao portfólio.
+Validação ao vivo das fontes: concluída em 2026-10-12, ver
+[`docs/planos/2026-10-12-validacao-fontes.md`](../planos/2026-10-12-validacao-fontes.md).
+
+1. **Achado, não está no backlog:** o CV em PDF está desatualizado em relação ao portfólio.
    Faltam o contrato atual (Bob Burnquist Holdings), Next.js, Supabase, a stack AWS completa,
    OCI e a formação em agentes.
 
@@ -335,15 +337,15 @@ As decisões abaixo são financeiras e ficam com o Jefferson.
 |---|---|---|---|---|
 | Ashby, Lever, Greenhouse | todos | Grátis | Ashby e Lever: campo; Greenhouse: texto | [Ashby](https://developers.ashbyhq.com/docs/public-job-posting-api) · [Lever](https://github.com/lever/postings-api) · [Greenhouse](https://docs.greenhouse.io/job-board.html) |
 | Personio XML | DE, ES | Grátis | Texto | [docs](https://developer.personio.de/docs/retrieving-open-job-positions) |
-| Recruitee | NL, DE | Grátis | Campo | A validar ao vivo |
+| Recruitee | NL, DE | Grátis | Campo | Validado; traz `mailbox_email` da empresa em cada vaga |
 | Teamtailor RSS | NL, DE | Grátis, até 100 itens | Campo | [guia](https://support.teamtailor.com/en/articles/11171756-rss-feed-how-to-guide) |
 | SmartRecruiters | todos | Grátis | País no servidor | [docs](https://developers.smartrecruiters.com/docs/customer-overview) |
 | InfoJobs | ES | Registro grátis | `teleworking` | [developer.infojobs.net](https://developer.infojobs.net); ler os ToS |
-| Tecnoempleo | ES | Grátis | Busca `teletrabajo` | Filtrar agências |
-| Bundesagentur für Arbeit | DE | Grátis | `arbeitszeit=ho` | Filtrar Personaldienstleister |
+| Tecnoempleo | ES | Grátis | Busca `teletrabajo` | RSS gerado no site; filtrar agências |
+| Bundesagentur für Arbeit | DE | Grátis | Filtro de home office a descobrir na v6 | Filtrar Personaldienstleister |
 | Arbeitnow | DE, UE | Grátis | `remote` | [blog](https://www.arbeitnow.com/blog/job-board-api) |
 | ITJobs.pt | PT | Chave grátis | `workModel` | [docs](https://www.itjobs.pt/api/docs/job); traz email |
-| Landing.jobs | PT, UE | Grátis | A validar | Documentação antiga |
+| Landing.jobs | PT, UE | Grátis | `remote` | Validado em 2026-10-12 |
 | Adzuna | UE exceto PT | 250 pedidos/dia, 2.500/mês | Palavra-chave | [ToS](https://developer.adzuna.com/docs/terms_of_service); muitas agências |
 | Himalayas | UE | Grátis | Remoto | [docs](https://himalayas.app/docs/remote-jobs-api) |
 | Remotive | remoto | No máximo 4 pedidos/dia | `candidate_required_location` | [repo](https://github.com/remotive-com/remote-jobs-api); sem redistribuição |
