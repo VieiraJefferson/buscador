@@ -52,7 +52,7 @@ GitHub Actions (diário)                 Vercel (sob demanda)
 │ coletor/ (Python)    │               │ web/ (Next.js)           │
 │ coleta → filtra →    │   escreve     │ login → vagas → email    │
 │ pontua → gera email  │ ───────────►  │ pronto → assistente      │
-│ (Claude Haiku 5.5)   │   Supabase    │ (Claude Haiku 5.5,       │
+│ (Haiku e Sonnet 5.5) │   Supabase    │ (Claude Opus 5.5,        │
 │ relatório por email  │   (UE)        │  só no servidor)         │
 └──────────────────────┘ ◄─────────────└──────────────────────────┘
                                 lê / marca enviada
@@ -61,7 +61,7 @@ GitHub Actions (diário)                 Vercel (sob demanda)
 | Peça | Responsabilidade |
 |---|---|
 | `coletor/` | O que o ADR-0001 define (coleta, filtros, pontuação, geração do email, relatório). Grava o resultado no Supabase em vez de num SQLite local. |
-| Supabase (região UE, Frankfurt) | Banco Postgres compartilhado, autenticação e RLS. |
+| Supabase (região UE, **Irlanda, eu-west-1**) | Banco Postgres compartilhado, autenticação e RLS. As funções do Vercel rodam em Dublin (`dub1`), perto do banco. |
 | `web/` | Interface do Jefferson: lista de vagas, email pronto, estado "enviada" e assistente de resposta. |
 
 ### 2. Stack da interface
@@ -181,7 +181,7 @@ buscador/
 |---|---|
 | Vercel Hobby | Grátis, só para uso pessoal e não comercial. O caso atual se encaixa. Se o produto um dia for oferecido a terceiros, é preciso plano pago. |
 | Supabase Free | Grátis. Pausa o projeto após uma semana sem atividade, mas a gravação diária do coletor o mantém ativo. Os limites do plano são confirmados no momento da implementação. |
-| API da Claude | Claude Haiku 5.5, já decidido no ADR-0001. O assistente soma alguns pedidos por dia. |
+| API da Claude | O assistente usa o Claude Opus 5.5 (opção b1 do ADR-0001), ~US$ 3 por mês nos ~90 pedidos estimados. O teto total é de US$ 15 por mês. |
 
 ---
 

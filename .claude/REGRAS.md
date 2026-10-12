@@ -16,6 +16,7 @@ As regras completas foram copiadas do toolkit para `CLAUDE.md` (raiz) e
    (técnico + não-técnico) → aprovação explícita → implementar.
 2. **Falar sempre em português do Brasil** com o Jefferson. Documentos novos também em PT-BR.
 3. **Antes de propor trabalho, ler:**
+   - `docs/decisoes-importantes.md` — resumo vivo das decisões em vigor;
    - `docs/decisions/` — ADRs aceitos (começar pelo ADR-0001);
    - a entrada mais recente de `docs/diario/` — decisões e pendências da última sessão;
    - `docs/planos/` — planos aprovados ou aguardando aprovação;

@@ -66,11 +66,18 @@ depende de extensões de agendamento no banco.
 
 ## Como aplicar (feito pelo Jefferson, um passo de cada vez)
 
-1. Criar o projeto no Supabase na região **Frankfurt (eu-central-1)**.
+1. Criar o projeto no Supabase numa região da UE. **Feito em 2026-10-12: Irlanda
+   (eu-west-1)**, aceita pelo Jefferson no lugar de Frankfurt (mesmo efeito para RGPD e
+   latência).
 2. Em Authentication, **desligar o cadastro público** e deixar o login por link mágico.
-3. No SQL Editor, rodar a migration inteira.
+   **Feito em 2026-10-12** (provider Email com senha mínima de 12 caracteres e link válido
+   por 15 minutos).
+3. No SQL Editor, rodar a migration inteira. **Feito e verificado em 2026-10-12:** 6 tabelas,
+   todas com RLS; `coletor` com login e sem `bypassrls`.
 4. No SQL Editor, definir a senha do `coletor` com `alter role coletor with password '...';`.
-   A senha é gerada por um gerenciador de senhas e nunca é colada no chat.
+   A senha é gerada por um gerenciador de senhas e nunca é colada no chat. **Feito em
+   2026-10-12:** 40 caracteres alfanuméricos, guardada no gerenciador do Jefferson; a query foi
+   apagada do SQL Editor.
 5. Montar a string de conexão do `coletor`. O GitHub Actions não tem IPv6 e a conexão direta
    do Supabase é IPv6, por isso **usar a conexão pelo pooler** (Supavisor), em que o usuário
    tem o formato `coletor.<id-do-projeto>`. O formato exato é confirmado no painel na hora.
@@ -79,8 +86,8 @@ depende de extensões de agendamento no banco.
 ## Validação feita
 
 - Sintaxe do SQL validada com o parser oficial do Postgres (`pglast`): 45 comandos, sem erros.
-- **Não validado ainda:** execução num Postgres real com o esquema `auth` do Supabase. Isso
-  acontece no passo 3 acima. Se der erro, a correção volta como plano.
+- Execução real no Supabase em 2026-10-12, sem erros. As consultas de verificação confirmaram
+  as 6 tabelas com RLS ligado e o role `coletor` (`rolcanlogin = true`, `rolbypassrls = false`).
 
 ## Segurança do repositório
 

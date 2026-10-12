@@ -170,9 +170,14 @@ confiável e a porta 25 costuma estar bloqueada em runners de cloud.
 - **Pontuação de compatibilidade** de 1 a 5 contra `config/perfil.yaml`, com saída
   estruturada. A referência de método é o `career-ops`, que pontua cada vaga contra o CV
   com LLM, e o `Resume-Matcher`.
-- **LLM:** **API da Claude** com o modelo **Claude Haiku 5.5** (`claude-haiku-5-5`), o mais
-  barato da API (decisão do Jefferson). É chamado pelo serviço no GitHub Actions, para
-  classificar, pontuar e escrever os emails.
+- **LLM:** **API da Claude**, com um modelo por tarefa (decisão do Jefferson, opção "b1",
+  teto de US$ 15 por mês):
+  - **Claude Haiku 5.5** (`claude-haiku-5-5`): classificar agência e pontuar as vagas, no
+    GitHub Actions. É o maior volume, por isso fica com o modelo mais barato.
+  - **Claude Sonnet 5.5** (`claude-sonnet-5-5`): escrever os emails de candidatura, no
+    GitHub Actions.
+  - **Claude Opus 5.5** (`claude-opus-5-5`): o assistente de resposta no site (ADR-0002).
+    O volume é baixo e cada resposta pesa mais.
 - **Email de candidatura:**
   - **Não existe texto fixo.** Cada email é escrito do zero pela API da Claude para aquela
     vaga, cruzando a descrição da vaga com `config/perfil.yaml`.
@@ -297,7 +302,7 @@ As decisões abaixo são financeiras e ficam com o Jefferson.
 
 | Item | Opções |
 |---|---|
-| Modelo Claude | **Decidido: Claude Haiku 5.5** (`claude-haiku-5-5`), US$ 0,10 por milhão de tokens de entrada e US$ 0,50 de saída (prompts até 100 mil tokens; tabela oficial de 2026-10-06). A Batch API dá 50% de desconto nas tarefas que não precisam de resposta imediata. Se a qualidade dos emails não bastar, a troca para um modelo mais capaz volta a ser decisão do Jefferson. |
+| Modelos Claude | **Decidido (opção b1), teto de US$ 15 por mês:** Haiku 5.5 para pontuar (US$ 0,10/0,50 por milhão de tokens), Sonnet 5.5 para os emails (US$ 2/10) e Opus 5.5 para o assistente (US$ 4/20), pela tabela oficial de 2026-10-06. Estimativa: ~US$ 4 + ~US$ 6 + ~US$ 3 = **~US$ 13 por mês**, com ~300 vagas pontuadas e ~15 emails por dia. No Opus 5.5 o raciocínio é sempre cobrado como saída, por isso o esforço fica baixo e o perfil vai em cache. O teto é garantido por um limite de gasto no console da Anthropic, definido pelo Jefferson. A Batch API (50% de desconto) pode ser usada na pontuação. |
 | Busca de emails | (a) só sites das empresas, grátis; (b) Hunter.io grátis, 50 por mês; (c) Hunter.io pago |
 | Fontes pagas (JSearch, SerpApi) | Não incluídas. Só entram se as grátis não bastarem. |
 
