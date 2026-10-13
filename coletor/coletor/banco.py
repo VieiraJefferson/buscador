@@ -180,6 +180,17 @@ class Banco:
                 (self.owner, fonte, inicio, lidas, novas, Jsonb(erros[:50])),
             )
 
+    def creditos_gastos_no_mes(self, fonte: str) -> int:
+        """Vagas devolvidas pela fonte no mês corrente (no TheirStack, 1 vaga = 1 crédito)."""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "select coalesce(sum(vagas_lidas), 0) from public.execucoes "
+                "where owner_id = %s and fonte = %s "
+                "and iniciada_em >= date_trunc('month', now())",
+                (self.owner, fonte),
+            )
+            return int(cur.fetchone()[0])
+
     def aplicar_retencao(self) -> int:
         """RGPD: apaga contatos com apagar_apos vencido."""
         with self.conn.cursor() as cur:

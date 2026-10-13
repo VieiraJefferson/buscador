@@ -59,7 +59,7 @@ uv run python -m coletor varrer                             # vagas do dia
 | `coletor/contatos.py` | Email de candidaturas do Recruitee (`ats_mailbox`) |
 | `coletor/banco.py` | Gravação com o usuário `coletor`, sempre com `owner_id` explícito |
 | `coletor/__main__.py` | Comandos `descobrir` e `varrer` |
-| `tests/` | 44 testes com respostas de exemplo fiéis às reais, sem rede |
+| `tests/` | 49 testes com respostas de exemplo fiéis às reais, sem rede |
 
 ## Regras dos filtros
 
@@ -67,7 +67,7 @@ uv run python -m coletor varrer                             # vagas do dia
 |---|---|
 | Agência | O nome da empresa está na lista negra ou o texto tem expressões como "on behalf of our client", "nuestro cliente" ou "unser Kunde". Uma empresa do banco que está na lista negra é marcada `eh_agencia` e deixa de ser varrida |
 | Perfil | O título precisa ser de desenvolvimento (developer, engineer, desarrollador, entwickler…). Vendas, marketing, engenharia mecânica e afins ficam fora |
-| Senioridade | Exclui senior, sr, lead, staff, principal, head, director, manager, architect, estágio e working student |
+| Senioridade | **Mid e senior entram** (decisão de 2026-10-13). Exclui júnior, entry level, graduate, trainee, estágio, working student, lead, staff, principal, head, director, manager, architect e executive |
 | País | ES = 1; NL e DE = 2; PT = 3; resto da UE = 4. Fora da UE (e Brasil) é rejeitado. "Europe" sem país só conta para vagas remotas (prioridade 4) |
 | Regime | Presencial é rejeitado. "Desconhecido" passa, e a IA decide na etapa 4 |
 | Idioma | Rejeita a vaga se exige alemão ou holandês (expressões como "fluent German" e "Deutschkenntnisse"), se o anúncio está escrito em alemão ou holandês, ou se o título é alemão |
@@ -87,7 +87,7 @@ uv run python -m coletor varrer                             # vagas do dia
 ## Validação
 
 - `ruff check`: sem erros.
-- `pytest`: 44 testes passam, sem rede.
+- `pytest`: 49 testes passam, sem rede (44 do coletor base e 5 do TheirStack).
 - Defeitos encontrados pelos testes e corrigidos: títulos alemães compostos
   ("Softwareentwickler", "Entwicklung") não eram reconhecidos como desenvolvimento.
 - **Teste real só de leitura** (`varrer --dry-run --amostra 30`, 2026-10-13, 13 s):
@@ -104,9 +104,23 @@ uv run python -m coletor varrer                             # vagas do dia
     "Research Engineer". A IA da etapa 4 dá a nota de compatibilidade.
 - **Falta:** a primeira execução real com gravação no Supabase.
 
+## TheirStack (adicionado em 2026-10-13)
+
+- **Para quê:** descobrir empregadores diretos. O `descobrir` semanal pede ao TheirStack vagas
+  `mid_level` ou `senior`, remotas ou híbridas, dos últimos 7 dias, de `direct_employer`, com
+  títulos da stack. Exclui lead, staff, architect, manager, director, head, intern e junior, e
+  as agências da lista negra com 6 ou mais caracteres (o TheirStack compara por substring).
+- **Custo:** 1 crédito por vaga devolvida (documentação oficial). Orçamento de 50 por semana
+  (ES 25, NL e DE 15, PT 10) e teto de 200 por mês, calculado na tabela `execucoes`. A execução
+  fica registrada antes das gravações, para o teto contar os créditos mesmo se algo falhar.
+- **Ganho:** o `final_url` revela o ATS. A empresa vai para o banco e passa a ser varrida todo
+  dia de graça pela API pública dela.
+- **Teste explícito:** `uv run python -m coletor descobrir --dry-run --amostra 1 --theirstack 5`
+  gasta no máximo 5 créditos e não grava nada.
+- **Sem `THEIRSTACK_API_KEY`**, a fonte é pulada.
+
 ## Ficou para depois
 
-- TheirStack grátis (quando houver conta e `THEIRSTACK_API_KEY`).
 - Busca de email no site da empresa (página de carreiras, aviso legal, Impressum) e Hunter.
 - Detecção do ATS a partir do site, para as empresas que só têm domínio (`remote-es` sem
   link de ATS e `marmelo/tech-companies-in-portugal`).

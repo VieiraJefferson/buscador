@@ -56,12 +56,21 @@ class Rede:
         self, url: str, *, params: dict | None = None, headers: dict | None = None
     ) -> httpx.Response | None:
         """Devolve a resposta 2xx, ou None em 404/410. Levanta ErroFonte noutros casos."""
+        return await self._pedido("GET", url, params=params, headers=headers)
+
+    async def post(
+        self, url: str, *, json: dict, headers: dict | None = None
+    ) -> httpx.Response | None:
+        """POST de leitura (ex.: busca do TheirStack), com as mesmas regras do GET."""
+        return await self._pedido("POST", url, json=json, headers=headers)
+
+    async def _pedido(self, metodo: str, url: str, **opcoes) -> httpx.Response | None:
         host = urlsplit(url).hostname or ""
         ultimo_erro = ""
         for tentativa in range(self._tentativas):
             async with self._geral, self._hosts[host]:
                 try:
-                    r = await self._cliente.get(url, params=params, headers=headers)
+                    r = await self._cliente.request(metodo, url, **opcoes)
                 except httpx.TransportError as e:
                     ultimo_erro = type(e).__name__
                     r = None

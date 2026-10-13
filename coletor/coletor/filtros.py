@@ -34,10 +34,11 @@ _IRRELEVANTES = [
     "mechanical engineer", "civil engineer", "electrical engineer", "hardware engineer",
     "quality engineer", "process engineer", "field engineer", "service engineer",
 ]
+# Termos de nível excluído que não estão no perfil.yaml (estágio em várias línguas, cargos C).
 _SENIORIDADE_EXTRA = [
-    "sr", "snr", "werkstudent", "praktikum", "praktikant", "praktikantin", "becario",
-    "becaria", "practicas", "estagio", "estagiario", "stagiair", "stage", "architect",
-    "vp", "chief", "cto",
+    "werkstudent", "praktikum", "praktikant", "praktikantin", "becario", "becaria",
+    "practicas", "estagio", "estagiario", "stagiair", "stage", "vp", "chief", "cto",
+    "entry level", "junior developer", "jnr",
 ]
 
 _DE_EXIGIDO = [

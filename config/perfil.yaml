@@ -20,8 +20,11 @@ idiomas:
   exigencias_excluidas: [alemao, holandes]
 
 senioridade:
-  incluir: [junior, mid, medior, regular, intermediate, "semi-senior"]
-  excluir: [senior, lead, staff, principal, head, director, manager, intern, internship]
+  # Decisão do Jefferson (2026-10-13): mid e senior. O CV não usa "Senior" no título para
+  # não ficar fora de vagas mid.
+  incluir: [mid, medior, regular, intermediate, "semi-senior", senior]
+  excluir: [junior, jr, entry level, graduate, trainee, intern, internship, lead, staff,
+            principal, head, director, manager, architect, executive]
 
 titulos_alvo:
   - Full-Stack Developer
@@ -47,14 +50,30 @@ competencias:
   metodos: [Scrum, Kanban, agile]
 
 experiencia:
-  - cargo: Full Stack Developer (Independent Contractor)
-    empresa: Bob Burnquist Holdings, LLC
+  - cargo: Software Architect & Full-Stack Developer (Independent Contractor)
+    empresa: Bob Burnquist Holdings, LLC (health tech, EUA)
     periodo: 2025-10 / atual
     local: Portugal, remoto
     destaques:
-      - Entrega ponta a ponta de plataforma de IA (EUA): frontend, backend e cloud.
+      - Único engenheiro e arquiteto; plataforma construída do zero até pronta para lançamento
+        (ainda não pública; apps nativos em React Native planejados).
+      - Decidiu e conduziu a migração da Oracle Cloud (OCI) para a AWS (ECS, ECR, S3, SQS, KMS,
+        Secrets Manager).
+      - Envelope encryption KEK/DEK com AWS KMS; exames médicos cifrados no S3.
       - Next.js, React, TypeScript; Node.js + Express; Supabase; Docker em AWS ECR/ECS.
-      - GitHub Actions, Jest, OpenAPI, Gitleaks e Semgrep; Vertex AI (Gemini); Privy (OAuth).
+      - GitHub Actions, Jest, OpenAPI, Gitleaks e Semgrep; Vertex AI (Gemini); Privy (OAuth);
+        Stripe.
+      - Participa das decisões de produto e de arquitetura (revisões semanais com os advisors;
+        nomes não são citados).
+  - cargo: Full-Stack & Web3 Developer (projeto para cliente)
+    empresa: gotas.social
+    periodo: 2025-06 / 2025-12
+    local: remoto
+    destaques:
+      - Marketplace e launchpad NFT em mainnet na Chiliz Chain com contratos thirdweb; hooks
+        próprios para lazy minting e batch minting; leilões em CHZ; login via thirdweb.
+      - Pipeline de IA generativa para camisas, estádios e escudos personalizados (agentes que
+        leem imagens em base64 e regeneram; depois DALL-E 3 com imagem de referência).
   - cargo: Full Stack Developer Jr.
     empresa: frete.com
     periodo: 2023-06 / 2024-12
@@ -67,6 +86,10 @@ experiencia:
     periodo: 2022-03 / 2023-04
     destaques:
       - Mais de 1000 horas práticas e 10 projetos de clientes com Scrum/Kanban.
+
+formacao:
+  - Técnico de nível médio em Informática (Delphi, Pascal, Visual Basic, C++, algoritmos,
+    redes, hardware)
 
 formacao_complementar:   # Udemy
   - "AI Engineer Agentic Track: The Complete Agent & MCP Course"

@@ -15,6 +15,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | Brasil | **Fora.** Só vagas na Europa. | ADR-0001 |
 | Países (ordem) | 1. Espanha · 2. Holanda e Alemanha · 3. Portugal · 4. resto da UE | ADR-0001 |
 | Regime | Remoto ou híbrido em todos. Presencial excluído. | ADR-0001 |
+| Senioridade | **Mid e senior.** Júnior, estágio, lead, staff, principal, architect e gestão ficam fora. O CV usa o título neutro "Full-Stack Software Engineer & Architect", sem "Senior", para não perder vagas mid. | Diário de 2026-10-13 |
 | Idioma | Exclui vagas que exigem alemão ou holandês fluente. O Jefferson fala PT, EN e ES. | ADR-0001 |
 | Empresas | Só as que contratam diretamente. Agências, consultorias de staffing e headhunters excluídos. | ADR-0001 |
 | Descoberta de empresas | **"Empresa primeiro", custo zero:** listas abertas de empresas por ATS (~24 mil), listas por país e TheirStack grátis; vagas lidas nas APIs públicas dos ATS. Os portais grandes (InfoJobs, Indeed) não são fonte; o Tecnoempleo é dominado por intermediários. Planos pagos não usados. | ADR-0001, pesquisa de 2026-10-13 |

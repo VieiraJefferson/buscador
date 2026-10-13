@@ -44,6 +44,11 @@ def config_banco() -> ConfigBanco:
     return ConfigBanco(url=os.environ["SUPABASE_DB_URL"], owner_id=os.environ["OWNER_ID"])
 
 
+def chave_theirstack() -> str | None:
+    """Opcional: sem a chave, o TheirStack é simplesmente pulado."""
+    return os.environ.get("THEIRSTACK_API_KEY") or None
+
+
 def carregar_yaml(caminho: Path) -> dict:
     with caminho.open(encoding="utf-8") as f:
         return yaml.safe_load(f) or {}

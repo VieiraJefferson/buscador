@@ -39,12 +39,15 @@ def test_presencial_e_rejeitado_desconhecido_passa(filtro):
     assert filtro.avaliar(vaga(regime="desconhecido")).aceita
 
 
-def test_senioridade(filtro):
-    for titulo in ("Senior Frontend Engineer", "Sr. Python Developer", "Lead Developer",
-                   "Backend Engineering Manager", "Software Engineer Intern",
-                   "Werkstudent Entwicklung"):
+def test_senioridade_mid_e_senior(filtro):
+    # Decisão de 2026-10-13: mid e senior entram; júnior, estágio, lead e acima ficam fora.
+    for titulo in ("Junior React Developer", "Jr. Frontend Developer", "Lead Developer",
+                   "Staff Engineer", "Frontend Architect", "Backend Engineering Manager",
+                   "Software Engineer Intern", "Werkstudent Entwicklung", "Graduate Developer"):
         assert filtro.avaliar(vaga(titulo=titulo)).motivo in {"senioridade", "idioma"}, titulo
-    assert filtro.avaliar(vaga(titulo="Junior React Developer")).aceita
+    for titulo in ("Senior Frontend Engineer", "Sr. Python Developer", "Full Stack Developer",
+                   "Mid-level Backend Engineer"):
+        assert filtro.avaliar(vaga(titulo=titulo)).aceita, titulo
 
 
 def test_titulo_fora_do_perfil(filtro):

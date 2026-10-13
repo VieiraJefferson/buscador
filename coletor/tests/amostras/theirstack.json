@@ -1,0 +1,10 @@
+{"metadata": {"total_results": null}, "data": [
+ {"id": 991, "job_title": "Full Stack Engineer (React/Node)", "company": "Produto SL", "company_domain": "produto.es",
+  "url": "https://www.linkedin.com/jobs/view/991", "final_url": "https://jobs.ashbyhq.com/produto/abc-123",
+  "location": "Madrid, Spain", "short_location": "Madrid", "country_code": "ES", "remote": false, "hybrid": true,
+  "seniority": "mid_level", "date_posted": "2026-10-10", "description": "We build with React and Node."},
+ {"id": 992, "job_title": "Backend Developer", "company": "Sem ATS BV", "company_domain": "semats.nl",
+  "final_url": "https://semats.nl/careers/backend", "location": "Amsterdam, Netherlands", "country_code": "NL",
+  "remote": true, "hybrid": false, "seniority": "senior", "date_posted": "2026-10-11", "description": "Python."},
+ {"id": 993, "job_title": "Sem URL", "company": "X"}
+]}
