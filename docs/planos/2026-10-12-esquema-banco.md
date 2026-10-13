@@ -1,7 +1,7 @@
 # Esquema do banco (etapa 2)
 
 **Data:** 2026-10-12
-**Migration:** [`supabase/migrations/20261012000000_esquema_inicial.sql`](../../supabase/migrations/20261012000000_esquema_inicial.sql)
+**Migration:** [`supabase/migrations/0001_esquema_inicial.sql`](../../supabase/migrations/0001_esquema_inicial.sql)
 **Decisões de origem:** [ADR-0001](../decisions/ADR-0001-arquitetura-buscador-vagas.md) e
 [ADR-0002](../decisions/ADR-0002-interface-web-vercel.md)
 
@@ -44,9 +44,13 @@ O banco também se protege sozinho:
 **Minimização (RGPD):** o email que o Jefferson cola no assistente **não é guardado**. Morada
 e telefone não entram no banco. O perfil continua em `config/perfil.yaml`.
 
-**Migration 2 (2026-10-13):** `supabase/migrations/20261013000000_vagas_consultoria.sql`
+**Migration 2 (2026-10-13):** `supabase/migrations/0002_vagas_consultoria.sql`
 acrescenta `vagas.consultoria` (padrão `false`) e refaz o índice da lista do dia com essa
-coluna. Deve ser aplicada no SQL Editor, como a primeira.
+coluna. **Aplicada no SQL Editor em 2026-10-13.**
+
+**Numeração:** as migrations usam número sequencial (`0001_`, `0002_`…), por preferência do
+Jefferson. A Supabase CLI aceita qualquer prefixo numérico (padrão `^([0-9]+)_(.*)\.sql$` no
+código da CLI).
 
 ## Acessos
 
