@@ -4,7 +4,7 @@ Resumo vivo das decisões em vigor. O detalhe e o porquê estão nos ADRs
 ([`decisions/`](decisions/)); a história de cada sessão, no [`diario/`](diario/). Quando uma
 decisão muda, este arquivo é atualizado e o ADR também.
 
-**Última atualização:** 2026-10-12
+**Última atualização:** 2026-10-13
 
 ## Produto
 
@@ -17,6 +17,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | Regime | Remoto ou híbrido em todos. Presencial excluído. | ADR-0001 |
 | Idioma | Exclui vagas que exigem alemão ou holandês fluente. O Jefferson fala PT, EN e ES. | ADR-0001 |
 | Empresas | Só as que contratam diretamente. Agências, consultorias de staffing e headhunters excluídos. | ADR-0001 |
+| Descoberta de empresas | **"Empresa primeiro", custo zero:** listas abertas de empresas por ATS (~24 mil), listas por país e TheirStack grátis; vagas lidas nas APIs públicas dos ATS. Os portais grandes (InfoJobs, Indeed) não são fonte; o Tecnoempleo é dominado por intermediários. Planos pagos não usados. | ADR-0001, pesquisa de 2026-10-13 |
 | Contato | Email direto da empresa. Prioridade: `mailbox_email` do Recruitee e email da fonte, depois o site da empresa e padrões genéricos (`careers@`…). Preferência por emails genéricos (RGPD). | ADR-0001 |
 | Envio | **Manual.** Nada sai automaticamente. Meta de ~100 candidaturas por semana. | ADR-0001 |
 | Email gerado | Sem texto fixo: escrito para cada vaga. **Proibidos "—" e "–".** Sempre como candidato. No idioma da vaga. | ADR-0001 |
@@ -32,7 +33,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | Banco | Supabase na Irlanda (eu-west-1), 6 tabelas com RLS | ADR-0002, plano do esquema |
 | Acesso ao banco pelo coletor | Usuário Postgres `coletor` com acesso restrito, via pooler de sessão. **A chave secreta (service role) não é usada.** | Plano do esquema |
 | Login no site | Supabase Auth com link mágico, cadastro público desligado, só o email do Jefferson | ADR-0002 |
-| Relatório diário | Por email. **Remetente em decisão: GMX ou Resend** (o Gmail dedicado falhou por causa do telefone) | ADR-0001, diário |
+| Relatório diário | Por email, **enviado pelo Resend** (chave só de envio) para o **email pessoal** do Jefferson. O Gmail dedicado falhou por causa do telefone. | ADR-0001 |
 | Segredos | `.env` local (ignorado pelo git), GitHub Secrets e variáveis do Vercel. Nomes claros, lidos num único arquivo de configuração. Gitleaks em cada push. | ADR-0001, plano do esquema |
 
 ## IA

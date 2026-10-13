@@ -114,18 +114,33 @@ usa o ATS **só para descobrir a vaga**; o contato é feito por email, direto co
 
 | País | Fonte | Acesso |
 |---|---|---|
-| ES | InfoJobs API (`api.infojobs.net/api/9/offer`, filtro `teleworking`) | Registro grátis de desenvolvedor |
+| ES | ~~InfoJobs API~~: **descartada em 2026-10-13** (termos proíbem apps que agregam ofertas; registro de apps suspenso) | — |
 | ES | Tecnoempleo (RSS gerado a partir de uma busca no site; sem URL fixa) | Público |
-| DE | Bundesagentur für Arbeit, Jobsuche **v6** (a v4 dá 403) | Chave pública fixa |
+| DE | Bundesagentur für Arbeit, Jobsuche **v6** (a v4 dá 403), com `zeitarbeit=false&pav=false` para excluir ETT e agências privadas | Chave pública fixa |
 | DE / UE | Arbeitnow (`arbeitnow.com/api/job-board-api`) | Público |
 | PT | ITJobs.pt (`api.itjobs.pt`, `workModel`, traz email da empresa) | Chave grátis |
 | PT / UE | Landing.jobs (`landing.jobs/api/v1/jobs`) | Público (validado em 2026-10-12) |
-| UE | Adzuna (es, nl, de, at, be, it, fr, pl; não cobre PT) | Chave grátis, 250 pedidos/dia |
+| UE | Adzuna (es, nl, de, at, be, it, fr, pl; não cobre PT) | Chave grátis; conta pendente de aprovação em 2026-10-13. Opcional |
 | UE remoto | Himalayas (`?country=ES`), Remotive | Público, com atribuição |
 
-**3.3 Descoberta de empresas.**
+**3.3 Descoberta de empresas ("empresa primeiro", atualizada em 2026-10-13, custo zero).**
+Detalhe em [`docs/planos/2026-10-13-pesquisa-empresas-diretas.md`](../planos/2026-10-13-pesquisa-empresas-diretas.md).
 
-- Listas iniciais: `remote-es/remotes` (empresas com contrato espanhol), `python-spain/empresas`
+- **Listas abertas de empresas por ATS:** `kalil0321/ats-scrapers` (MIT, ~24 mil empresas nos
+  8 ATS) e `veresk06/open-ats-feed` (MIT). Na primeira passagem, e depois uma vez por semana,
+  o coletor guarda só as empresas com vagas nos países do Jefferson; a varredura diária
+  consulta só essas.
+- **Listas por país:** `marmelo/tech-companies-in-portugal`, `inazr/job_scanner` (DE),
+  `remote-es/remotes` (ES, só consulta: sem licença), ACCIÓ Startup Hub e Startupxplore.
+- **TheirStack, plano grátis** (50 empresas + 200 vagas por mês): empresas que contratam a
+  stack, por país, com `company_type=direct_employer` e domínio. Serve de filtro de
+  qualidade, não de volume.
+- Os portais grandes (InfoJobs, Indeed/Glassdoor) **não são fonte**: os termos proíbem
+  automação. O Tecnoempleo é dominado por intermediários (cerca de 5% de empregadores
+  diretos no volume).
+- Planos pagos (TheirStack API, Fantastic.jobs, Hunter pago): **não usados** por decisão do
+  Jefferson. Reavaliar se faltar cobertura.
+- Listas iniciais antigas: `python-spain/empresas`
   e `remoteintech/remote-jobs`. A essas se soma uma curadoria manual do Jefferson.
 - Cada empresa nova tem o seu ATS detectado: pelos links da página `/careers` ou testando o
   slug em cada API pública (devolve 404 se não existir). O slug detectado fica salvo para as
@@ -146,6 +161,13 @@ Aplicada em camadas, da mais barata para a mais cara:
    e só para os casos que sobram.
 5. Verificação pontual opcional pelo código de atividade NACE 78 ("atividades de emprego"),
    por exemplo na KvK holandesa. Não é automática.
+6. **Registros oficiais de agências** como lista de exclusão: SNE (agencias de colocación,
+   ES), IEFP (empresas de trabalho temporário, PT) e BA AÜG (DE). Mais uma lista negra de
+   consultoras e recrutadoras conhecidas (Accenture, NTT Data, Capgemini, Sopra Steria,
+   Indra, Viewnext, UST, Deloitte, Hays, Michael Page, Randstad, Adecco, Jobandtalent,
+   Manfred, Jobgether…).
+7. Filtro `company_type=direct_employer` do TheirStack, quando a empresa vier de lá. Ele
+   deixa algumas agências passarem, por isso não substitui as camadas acima.
 
 ### 5. Contato direto da empresa
 
@@ -201,15 +223,24 @@ confiável e a porta 25 costuma estar bloqueada em runners de cloud.
 |---|---|
 | Linguagem | Python 3.12 (proposta; confirmar no plano de implementação) |
 | Agendamento | **GitHub Actions** `schedule`, uma vez por dia, em **repositório privado** |
-| Relatório | **Email**, enviado por uma **conta Gmail dedicada** para ela mesma; o Jefferson ativa as notificações dessa conta. O email pessoal fica fora. |
-| Envio do relatório | SMTP do Gmail com **App Password** da conta dedicada, guardada em GitHub Secrets |
+| Relatório | **Email para o endereço pessoal do Jefferson**, enviado pelo **Resend** a partir de `onboarding@resend.dev` (decisão de 2026-10-13, ver abaixo). |
+| Envio do relatório | API do Resend com uma chave de **permissão só de envio**, guardada em GitHub Secrets (`RESEND_API_KEY`). O destino (`RELATORIO_DESTINO`) também fica nos Secrets, por ser dado pessoal. |
 | Estado entre execuções | **Substituído pelo [ADR-0002](ADR-0002-interface-web-vercel.md):** banco Supabase na região UE, compartilhado com a interface web. Sem commits automáticos. |
-| Segredos | GitHub Secrets (App Password da conta dedicada e chave da API da Claude). Nada em arquivo versionado (ver `.gitignore`). |
+| Segredos | GitHub Secrets (chave do Resend, chave da API da Claude e conexão do usuário `coletor`). Nada em arquivo versionado (ver `.gitignore`). |
 
-**Por que App Password e não OAuth:** um projeto OAuth do Google em modo "Testing" tem
-refresh tokens que expiram em 7 dias, o que quebraria a varredura diária. A App Password dá
-acesso total à conta, o que seria arriscado numa conta pessoal. Numa conta dedicada, sem
-nada sensível, esse risco fica contido.
+**Por que Resend (alterado em 2026-10-13):** a proposta inicial era uma conta Gmail dedicada
+com App Password. O Google recusou a criação da conta porque o telefone do Jefferson já foi
+"usado muitas vezes". Foram descartados também:
+
+- **Outlook/Hotmail:** sem SMTP por senha em contas pessoais desde 2026; exige OAuth.
+- **Email e Zoho da empresa:** exporiam caixas da empresa num projeto pessoal.
+- **Zoho grátis:** sem SMTP para contas novas.
+- **GMX:** funcionaria, mas guarda a senha de uma caixa inteira.
+
+O Resend envia por API com uma chave que **só envia**, sem acesso a caixa nenhuma. Sem
+domínio próprio, `onboarding@resend.dev` só envia para o email da conta Resend. Isso serve
+aqui, porque o relatório é só para o Jefferson ([doc oficial](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain)).
+O plano grátis dá 100 emails por dia e 3.000 por mês ([preços](https://resend.com/pricing)).
 
 **Por que GitHub Actions:** é grátis em repositório privado (2.000 minutos por mês) e não
 depende de o computador estar ligado. A desativação após 60 dias sem atividade só vale
@@ -262,7 +293,9 @@ Jefferson.
 | Resposta automática a convites | Risco de injeção de prompt e de falsos positivos. A reputação profissional não é reversível. |
 | Notificação por Telegram | O Jefferson não usa as notificações do Telegram. |
 | WhatsApp Cloud API | Pago por mensagem e com configuração pesada para uso pessoal. |
-| Gmail API com OAuth para o relatório | O token expira a cada 7 dias em modo Testing. A App Password da conta dedicada resolve com menos peças. |
+| Gmail API com OAuth para o relatório | O token expira a cada 7 dias em modo Testing. |
+| Conta Gmail dedicada com App Password | O Google recusou o cadastro (telefone "usado muitas vezes"). |
+| Outlook, GMX, Zoho, email da empresa | Ver "Por que Resend" na seção 8. |
 | Cron local ou Agendador do Windows | Depende de o computador estar ligado. |
 | Cloudflare Workers Cron | O plano grátis só dá 10 ms de CPU por execução. |
 | Fontes brasileiras (Gupy, backend-br, frontendbr) | O Brasil está fora do escopo. |
@@ -280,7 +313,7 @@ Jefferson.
 - Só contato direto com quem contrata, que é o objetivo do produto.
 - Fontes legais e grátis, sem risco para contas pessoais.
 - O Jefferson tem controle total do que sai em nome dele.
-- Custo de infraestrutura zero (GitHub Actions privado, Gmail dedicado e, pelo ADR-0002, planos grátis do Vercel e do Supabase).
+- Custo de infraestrutura zero (GitHub Actions privado, plano grátis do Resend e, pelo ADR-0002, planos grátis do Vercel e do Supabase).
 
 **Negativas e trade-offs**
 

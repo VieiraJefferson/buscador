@@ -1,0 +1,17 @@
+{
+ "data": [
+  {
+   "slug": "node-dev-1",
+   "company_name": "Exemplo",
+   "title": "Node.js Developer",
+   "description": "<p>English team</p>",
+   "remote": true,
+   "url": "https://www.arbeitnow.com/jobs/companies/exemplo/node-dev-1",
+   "location": "Berlin",
+   "created_at": 1791902468
+  }
+ ],
+ "links": {
+  "next": null
+ }
+}

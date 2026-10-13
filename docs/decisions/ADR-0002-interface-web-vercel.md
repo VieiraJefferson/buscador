@@ -21,7 +21,8 @@ celular. Pelo site ele:
 
 O visual é o do portfólio dele: mesmas cores, tipografia e rolagem suave.
 
-O email diário continua chegando na conta dedicada, agora com um link para o site.
+O email diário continua chegando no email pessoal do Jefferson (via Resend, ADR-0001), agora
+com um link para o site.
 
 Para o site e a varredura diária enxergarem os mesmos dados, as vagas passam a ficar num
 banco na nuvem (Supabase, na Europa), protegido por login.

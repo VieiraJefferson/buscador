@@ -1,0 +1,29 @@
+{
+ "offers": [
+  {
+   "id": 2774460,
+   "title": "Software Developer",
+   "slug": "software-developer",
+   "careers_url": "https://werkenbij.exemplo.nl/o/software-developer",
+   "country_code": "NL",
+   "city": "Utrecht",
+   "country": "Nederland",
+   "location": "Utrecht, Nederland",
+   "remote": false,
+   "hybrid": true,
+   "on_site": false,
+   "company_name": "Exemplo",
+   "published_at": "2026-10-07 09:48:39 UTC",
+   "experience_code": "experienced",
+   "description": "<p>Join our team</p>",
+   "mailbox_email": "Job.Abc123@Exemplo.Recruitee.com",
+   "locations": [
+    {
+     "city": "Utrecht",
+     "country": "Netherlands",
+     "country_code": "NL"
+    }
+   ]
+  }
+ ]
+}

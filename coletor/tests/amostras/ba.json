@@ -1,0 +1,20 @@
+{
+ "ergebnisliste": [
+  {
+   "stellenangebotsTitel": "Frontend Developer (m/w/d)",
+   "firma": "Exemplo GmbH",
+   "referenznummer": "11949-1-S",
+   "homeofficemoeglich": true,
+   "datumErsteVeroeffentlichung": "2026-10-13",
+   "stellenlokationen": [
+    {
+     "adresse": {
+      "ort": "Hamburg",
+      "land": "DEUTSCHLAND"
+     }
+    }
+   ]
+  }
+ ],
+ "maxErgebnisse": 1
+}

@@ -1,0 +1,37 @@
+{
+ "jobs": [
+  {
+   "id": "a1",
+   "title": "Full Stack Engineer | Remote | Europe",
+   "location": "Madrid",
+   "secondaryLocations": [
+    {
+     "location": "Lisbon",
+     "address": {
+      "postalAddress": {
+       "addressCountry": "Portugal"
+      }
+     }
+    }
+   ],
+   "publishedAt": "2026-10-13T13:48:21.468+00:00",
+   "isListed": true,
+   "isRemote": true,
+   "workplaceType": "Remote",
+   "address": {
+    "postalAddress": {
+     "addressCountry": "Spain",
+     "addressLocality": "Madrid"
+    }
+   },
+   "jobUrl": "https://jobs.ashbyhq.com/exemplo/a1",
+   "descriptionPlain": "We build things with React and Node."
+  },
+  {
+   "id": "a2",
+   "title": "Hidden",
+   "isListed": false,
+   "jobUrl": "https://jobs.ashbyhq.com/exemplo/a2"
+  }
+ ]
+}
