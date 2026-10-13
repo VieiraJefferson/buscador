@@ -1,0 +1,125 @@
+# Intermediários a excluir (ADR-0001, seção 4). Comparação por nome normalizado
+# (minúsculas, sem acentos, palavras inteiras). Uma entrada nova leva o motivo ao lado
+# quando não for óbvio.
+
+empresas:
+  # Recrutadoras e headhunters
+  - hays
+  - michael page
+  - page personnel
+  - page group
+  - robert half
+  - robert walters
+  - randstad
+  - adecco
+  - manpower
+  - manpowergroup
+  - experis
+  - gi group
+  - nortempo
+  - eurofirms
+  - kelly services
+  - hudson
+  - spring professional
+  - harvey nash
+  - progressive recruitment
+  - computer futures
+  - jefferson frank
+  - nigel frank
+  - frank recruitment
+  - sthree
+  - tiro recruitment # recrutadora de TI
+  - appcast # distribuidor programático de anúncios (Tecnoempleo)
+  # Plataformas intermediárias e ETT
+  - jobandtalent
+  - manfred
+  - jobgether
+  - lemon io
+  - toptal
+  - andela
+  - crossover
+  - braintrust
+  - damia group # dona do Landing.jobs
+  # Consultoras e "cárnicas"
+  - accenture
+  - ntt data
+  - capgemini
+  - sopra steria
+  - indra
+  - minsait
+  - viewnext
+  - ust
+  - ust global
+  - deloitte
+  - everis
+  - atos
+  - eviden
+  - tata consultancy services
+  - tcs
+  - infosys
+  - wipro
+  - cognizant
+  - hcl
+  - hcltech
+  - devoteam
+  - t systems
+  - inetum
+  - ayesa
+  - altran
+  - akkodis
+  - alten
+  - serem
+  - baoss
+  - softtek
+  - hiberus
+  - plain concepts
+  - scalian
+  - seidor
+  - babel
+  - bosonit
+  - nter
+  - vass
+  - stratesys
+  - kyndryl
+  - aubay
+  - emergya
+  - inscale
+  - kpmg
+  - pwc
+  - ey
+  - ernst young
+
+palavras:
+  # Inglês
+  - on behalf of our client
+  - our client is
+  - for our client
+  - recruitment agency
+  - staffing agency
+  - headhunter
+  - headhunting
+  - body leasing
+  - nearshore team for our client
+  # Espanhol
+  - nuestro cliente
+  - para importante cliente
+  - importante empresa cliente
+  - empresa de trabajo temporal
+  - seleccionamos para
+  # Português
+  - o nosso cliente
+  - empresa de trabalho temporario
+  # Alemão
+  - unser kunde
+  - unseren kunden
+  - fur unseren kunden
+  - im auftrag unseres kunden
+  - personaldienstleister
+  - arbeitnehmeruberlassung
+  - zeitarbeit
+  # Holandês
+  - onze opdrachtgever
+  - voor onze opdrachtgever
+  - uitzendbureau
+  - detachering
+  - detacheerder

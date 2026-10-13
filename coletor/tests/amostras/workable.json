@@ -1,0 +1,23 @@
+{
+ "name": "Exemplo",
+ "jobs": [
+  {
+   "title": "React Developer",
+   "shortcode": "186545F8C1",
+   "telecommuting": true,
+   "url": "https://apply.workable.com/j/186545F8C1",
+   "published_on": "2026-02-12",
+   "country": "Spain",
+   "city": "Valencia",
+   "experience": "Associate",
+   "locations": [
+    {
+     "country": "Spain",
+     "countryCode": "ES",
+     "city": "Valencia"
+    }
+   ],
+   "description": "<p>Remote</p>"
+  }
+ ]
+}

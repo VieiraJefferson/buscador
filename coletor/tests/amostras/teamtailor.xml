@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:tt="https://teamtailor.com/locations"><channel>
+<item><title>Full Stack Developer</title><description>&lt;p&gt;Hybrid role&lt;/p&gt;</description>
+<pubDate>Wed, 17 Jan 2024 15:42:18 +0100</pubDate><link>https://exemplo.teamtailor.com/jobs/1-full-stack</link>
+<remoteStatus>hybrid</remoteStatus><guid>uuid-1</guid><company_name>Exemplo</company_name>
+<tt:locations><tt:location><tt:name>Barcelona, Spain</tt:name><tt:city>Barcelona</tt:city><tt:country>Spain</tt:country></tt:location></tt:locations>
+</item></channel></rss>

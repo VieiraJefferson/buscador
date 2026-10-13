@@ -1,0 +1,27 @@
+{
+ "offset": 0,
+ "limit": 100,
+ "totalFound": 1,
+ "content": [
+  {
+   "id": "744000155311205",
+   "name": "Python Developer",
+   "company": {
+    "identifier": "Exemplo",
+    "name": "Exemplo"
+   },
+   "releasedDate": "2026-10-13T16:13:01.645Z",
+   "location": {
+    "city": "Porto",
+    "country": "pt",
+    "remote": false,
+    "hybrid": true,
+    "fullLocation": "Porto, Portugal"
+   },
+   "experienceLevel": {
+    "id": "associate",
+    "label": "Associate"
+   }
+  }
+ ]
+}

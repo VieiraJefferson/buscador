@@ -44,7 +44,8 @@ vivo" do [ADR-0001](../decisions/ADR-0001-arquitetura-buscador-vagas.md).
 | We Work Remotely (RSS) | ✅ 200 | 25 | `region` | |
 | Landing.jobs | ✅ 200 | 50 | `remote`, `locations`, faixa salarial | A documentação era antiga, mas a API funciona |
 | Tecnoempleo (RSS) | ❌ 404 | — | — | Não há URL fixa. O feed é gerado a partir de uma busca no site. |
-| InfoJobs, ITJobs, Adzuna | ⏸ não testadas | — | — | Precisam de chave grátis, a pedir pelo Jefferson |
+| InfoJobs | ❌ sem chave | — | — | **Atualização de 2026-10-13:** o portal de programadores diz "The registration of new apps is currently unavailable". Fica fora do coletor v1; tentar de novo mais tarde. |
+| ITJobs, Adzuna | ⏸ não testadas | — | — | Precisam de chave grátis, a pedir pelo Jefferson |
 
 ### Listas para descobrir empresas
 

@@ -1,0 +1,25 @@
+[
+ {
+  "id": "l1",
+  "text": "Frontend Engineer",
+  "country": "NL",
+  "workplaceType": "hybrid",
+  "categories": {
+   "location": "Amsterdam",
+   "allLocations": [
+    "Amsterdam"
+   ],
+   "commitment": "Permanent"
+  },
+  "createdAt": 1782214185805,
+  "descriptionPlain": "React and TypeScript.",
+  "lists": [
+   {
+    "text": "What you will do",
+    "content": "<li>Build UI</li>"
+   }
+  ],
+  "additionalPlain": "",
+  "hostedUrl": "https://jobs.lever.co/exemplo/l1"
+ }
+]

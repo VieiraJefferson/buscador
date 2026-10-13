@@ -1,0 +1,21 @@
+{
+ "jobs": [
+  {
+   "id": 101,
+   "title": "Backend Developer",
+   "absolute_url": "https://job-boards.greenhouse.io/exemplo/jobs/101",
+   "location": {
+    "name": "Remote, Germany"
+   },
+   "offices": [
+    {
+     "name": "Berlin",
+     "location": "Berlin, Germany"
+    }
+   ],
+   "company_name": "Exemplo GmbH",
+   "first_published": "2026-10-02T11:31:50-04:00",
+   "content": "&lt;p&gt;Node.js &amp;amp; Python&lt;/p&gt;"
+  }
+ ]
+}
