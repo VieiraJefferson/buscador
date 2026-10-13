@@ -1,0 +1,38 @@
+name: coletor-varrer
+
+# Varredura diária: lê as vagas das empresas guardadas e dos agregadores, filtra e grava.
+# Diária, ou à mão em Actions → coletor-varrer → Run workflow.
+# Plano: docs/planos/2026-10-13-plano-coletor-v1.md
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # todos os dias, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coletor
+  cancel-in-progress: false
+
+jobs:
+  varrer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: coletor
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: astral-sh/setup-uv@v10.2.0
+
+      - name: Instalar dependências (versões do uv.lock)
+        run: uv sync --frozen --python 3.12
+
+      - name: Varrer vagas
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          OWNER_ID: ${{ secrets.OWNER_ID }}
+        run: uv run python -m coletor varrer
