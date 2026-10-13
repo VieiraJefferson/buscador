@@ -1,0 +1,40 @@
+name: coletor-descobrir
+
+# Monta e atualiza a lista de empresas (listas abertas + TheirStack com orçamento semanal).
+# Semanal, ou à mão em Actions → coletor-descobrir → Run workflow (a primeira vez).
+# Plano: docs/planos/2026-10-13-plano-coletor-v1.md
+
+on:
+  schedule:
+    - cron: "0 5 * * 1" # segundas-feiras, 05:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# descobrir e varrer nunca correm ao mesmo tempo (um espera o outro)
+concurrency:
+  group: coletor
+  cancel-in-progress: false
+
+jobs:
+  descobrir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: coletor
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - uses: astral-sh/setup-uv@v10.2.0
+
+      - name: Instalar dependências (versões do uv.lock)
+        run: uv sync --frozen --python 3.12
+
+      - name: Descobrir empresas
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          OWNER_ID: ${{ secrets.OWNER_ID }}
+          THEIRSTACK_API_KEY: ${{ secrets.THEIRSTACK_API_KEY }}
+        run: uv run python -m coletor descobrir

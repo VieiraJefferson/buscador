@@ -105,6 +105,22 @@ uv run python -m coletor varrer                             # vagas do dia
     "Research Engineer". A IA da etapa 4 dá a nota de compatibilidade.
 - **Falta:** a primeira execução real com gravação no Supabase.
 
+## Produção no GitHub Actions (adicionado em 2026-10-13)
+
+| Workflow | Quando | Comando |
+|---|---|---|
+| `.github/workflows/coletor-descobrir.yml` | Segundas, 05:00 UTC, ou "Run workflow" | `descobrir` (90 min no máximo) |
+| `.github/workflows/coletor-varrer.yml` | Todos os dias, 06:00 UTC, ou "Run workflow" | `varrer` (30 min no máximo) |
+
+- Python 3.12 via `astral-sh/setup-uv@v10.2.0` e `uv sync --frozen` (versões do `uv.lock`).
+  `actions/checkout@v7.0.1`. Permissão só de leitura no repositório.
+- Os dois partilham o grupo de concorrência `coletor`: nunca correm ao mesmo tempo.
+- Credenciais nos GitHub Secrets: `SUPABASE_DB_URL`, `OWNER_ID` e `THEIRSTACK_API_KEY`.
+- **O agendamento e o botão "Run workflow" só funcionam com os arquivos na branch padrão
+  (`main`).** É preciso fazer o merge de `feat/coletor` na `main`.
+- Estimativa: ~500 a 700 minutos por mês, dentro dos 2.000 grátis de repositório privado.
+- Ainda sem IA (etapa 4) e sem relatório por email (etapa 5).
+
 ## TheirStack (adicionado em 2026-10-13)
 
 - **Para quê:** descobrir empregadores diretos. O `descobrir` semanal pede ao TheirStack vagas
