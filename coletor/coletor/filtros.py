@@ -13,6 +13,7 @@ class Decisao:
     motivo: str | None = None  # por que foi rejeitada
     pais: str | None = None
     prioridade: int | None = None
+    consultoria: bool = False  # aceita, mas fica abaixo dos empregadores diretos
 
 
 # O título precisa nomear uma função de desenvolvimento. Tecnologias soltas ("AI", "React")
@@ -68,6 +69,23 @@ _PALAVRAS_EN = {"the", "and", "you", "we", "with", "for", "our", "your", "are", 
                 "of", "to", "in", "is"}
 _TITULO_DE = ["entwickler", "entwicklerin", "softwareentwickler", "informatiker",
               "fachinformatiker", "anwendungsentwickler", "webentwickler"]
+
+
+# Consultorias fora da lista negra: não são excluídas, só rebaixadas no ranking.
+_NOME_CONSULTORIA = ["consulting", "consultancy", "consultoria", "consultores", "consultants",
+                     "consultant", "consultora", "consultoras"]
+# Vaga para cliente: uma sigla entre traços no título ("Front End – ADP – equipo").
+_SIGLA_CLIENTE = re.compile(r"\s[–-]\s([A-Z0-9&]{2,6})\s[–-]\s")
+_SIGLAS_COMUNS = {"AI", "ML", "UI", "UX", "QA", "EU", "UE", "ES", "PT", "NL", "DE", "UK", "US",
+                  "EMEA", "API", "B2B", "B2C", "SAAS", "CTO", "HR", "IT", "R&D", "MVP", "ERP",
+                  "CRM", "LLM", "NLP", "IOT", "GCP", "AWS", "OCI", "SRE"}
+
+
+def eh_consultoria(empresa: str, titulo: str) -> bool:
+    nome = normalizar(empresa)
+    if any(contem_termo(nome, t) for t in _NOME_CONSULTORIA):
+        return True
+    return any(m.group(1) not in _SIGLAS_COMUNS for m in _SIGLA_CLIENTE.finditer(f" {titulo} "))
 
 
 def _lingua_predominante(texto: str) -> str | None:
@@ -153,7 +171,7 @@ class Filtro:
             return Decisao(False, "regime")
         if self._exige_idioma_excluido(v):
             return Decisao(False, "idioma")
-        return Decisao(True, None, pais, prioridade)
+        return Decisao(True, None, pais, prioridade, eh_consultoria(v.empresa_nome, v.titulo))
 
     def _exige_idioma_excluido(self, v: Vaga) -> bool:
         texto = f"{v.titulo}\n{v.descricao}"

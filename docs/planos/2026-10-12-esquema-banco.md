@@ -44,6 +44,10 @@ O banco também se protege sozinho:
 **Minimização (RGPD):** o email que o Jefferson cola no assistente **não é guardado**. Morada
 e telefone não entram no banco. O perfil continua em `config/perfil.yaml`.
 
+**Migration 2 (2026-10-13):** `supabase/migrations/20261013000000_vagas_consultoria.sql`
+acrescenta `vagas.consultoria` (padrão `false`) e refaz o índice da lista do dia com essa
+coluna. Deve ser aplicada no SQL Editor, como a primeira.
+
 ## Acessos
 
 | Papel | Quem | O que pode |
