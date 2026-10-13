@@ -225,9 +225,11 @@ async def varrer(args: argparse.Namespace, filtro: Filtro) -> None:
     for fonte, lista in erros.items():
         log.warning("erros em %s: %d (ex.: %s)", fonte, len(lista), lista[0])
     if args.dry_run:
-        for v, d in sorted(aceitas, key=lambda x: x[1].prioridade or 9)[:20]:
-            log.info("  [%s %s] %-28s | %s | %s", d.prioridade, d.pais or "UE", v.empresa_nome[:28],
-                     v.titulo[:60], v.regime)
+        ordem = sorted(aceitas, key=lambda x: (x[1].prioridade or 9, x[1].consultoria))
+        for v, d in ordem[:20]:
+            log.info("  [%s %s%s] %-28s | %s | %s", d.prioridade, d.pais or "UE",
+                     " consultoria" if d.consultoria else "", v.empresa_nome[:28], v.titulo[:60],
+                     v.regime)
 
 
 def main() -> None:

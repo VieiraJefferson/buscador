@@ -65,6 +65,7 @@ uv run python -m coletor varrer                             # vagas do dia
 
 | Regra | Comportamento |
 |---|---|
+| Consultoria (rebaixada) | Fora da lista negra, reconhecida pelo nome ("consulting", "consultoría"…) ou por uma sigla de cliente entre traços no título. Aceita, com `consultoria = true`, e fica abaixo dos empregadores diretos |
 | Agência | O nome da empresa está na lista negra ou o texto tem expressões como "on behalf of our client", "nuestro cliente" ou "unser Kunde". Uma empresa do banco que está na lista negra é marcada `eh_agencia` e deixa de ser varrida |
 | Perfil | O título precisa ser de desenvolvimento (developer, engineer, desarrollador, entwickler…). Vendas, marketing, engenharia mecânica e afins ficam fora |
 | Senioridade | **Mid e senior entram** (decisão de 2026-10-13). Exclui júnior, entry level, graduate, trainee, estágio, working student, lead, staff, principal, head, director, manager, architect e executive |
@@ -87,7 +88,7 @@ uv run python -m coletor varrer                             # vagas do dia
 ## Validação
 
 - `ruff check`: sem erros.
-- `pytest`: 49 testes passam, sem rede (44 do coletor base e 5 do TheirStack).
+- `pytest`: 50 testes passam, sem rede (44 do coletor base, 5 do TheirStack e 1 do ranking de consultorias).
 - Defeitos encontrados pelos testes e corrigidos: títulos alemães compostos
   ("Softwareentwickler", "Entwicklung") não eram reconhecidos como desenvolvimento.
 - **Teste real só de leitura** (`varrer --dry-run --amostra 30`, 2026-10-13, 13 s):

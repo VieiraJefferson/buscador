@@ -17,7 +17,8 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | Regime | Remoto ou híbrido em todos. Presencial excluído. | ADR-0001 |
 | Senioridade | **Mid e senior.** Júnior, estágio, lead, staff, principal, architect e gestão ficam fora. O CV usa o título neutro "Full-Stack Software Engineer & Architect", sem "Senior", para não perder vagas mid. | Diário de 2026-10-13 |
 | Idioma | Exclui vagas que exigem alemão ou holandês fluente. O Jefferson fala PT, EN e ES. | ADR-0001 |
-| Empresas | Só as que contratam diretamente. Agências, consultorias de staffing e headhunters excluídos. | ADR-0001 |
+| Empresas | Só as que contratam diretamente. Recrutadoras, headhunters, ETT e as consultorias da lista negra são excluídas. **Outras consultorias ficam, mas abaixo dos empregadores diretos.** | ADR-0001 |
+| Ranking | 1. prioridade do país; 2. empregador direto antes de consultoria; 3. nota de compatibilidade (etapa 4). | ADR-0001, migration 20261013000000 |
 | Descoberta de empresas | **"Empresa primeiro", custo zero:** listas abertas de empresas por ATS (~24 mil), listas por país e TheirStack grátis; vagas lidas nas APIs públicas dos ATS. Os portais grandes (InfoJobs, Indeed) não são fonte; o Tecnoempleo é dominado por intermediários. Planos pagos não usados. | ADR-0001, pesquisa de 2026-10-13 |
 | Contato | Email direto da empresa. Prioridade: `mailbox_email` do Recruitee e email da fonte, depois o site da empresa e padrões genéricos (`careers@`…). Preferência por emails genéricos (RGPD). | ADR-0001 |
 | Envio | **Manual.** Nada sai automaticamente. Meta de ~100 candidaturas por semana. | ADR-0001 |

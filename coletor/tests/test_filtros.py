@@ -86,3 +86,15 @@ def test_exigencia_de_alemao_ou_holandes(filtro):
 def test_espanhol_e_portugues_sao_aceitos(filtro):
     anuncio_es = " ".join(["Buscamos una persona desarrolladora para el equipo de producto."] * 8)
     assert filtro.avaliar(vaga(descricao=anuncio_es)).aceita
+
+
+def test_consultoria_fora_da_lista_negra_e_aceita_mas_marcada(filtro):
+    # Decisão de 2026-10-13: consultorias não listadas não saem, vão para baixo no ranking.
+    d = filtro.avaliar(vaga(empresa_nome="InnoIT Consulting"))
+    assert d.aceita and d.consultoria
+    d = filtro.avaliar(vaga(titulo="Front End Developer – ADP – equipo Andorra"))
+    assert d.aceita and d.consultoria
+    for titulo in ("Software Engineer - Backend - Remote", "Engineer – AI – Platform team",
+                   "Full Stack Developer"):
+        assert not filtro.avaliar(vaga(titulo=titulo)).consultoria, titulo
+    assert not filtro.avaliar(vaga(empresa_nome="Produto SL")).consultoria

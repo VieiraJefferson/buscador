@@ -166,7 +166,12 @@ Aplicada em camadas, da mais barata para a mais cara:
    consultoras e recrutadoras conhecidas (Accenture, NTT Data, Capgemini, Sopra Steria,
    Indra, Viewnext, UST, Deloitte, Hays, Michael Page, Randstad, Adecco, Jobandtalent,
    Manfred, Jobgether…).
-7. Filtro `company_type=direct_employer` do TheirStack, quando a empresa vier de lá. Ele
+7. **Consultorias fora da lista negra são rebaixadas, não excluídas** (decisão de 2026-10-13).
+   São reconhecidas pelo nome ("consulting", "consultoría", "consultores"…) ou por uma sigla
+   de cliente entre traços no título ("Front End – ADP – equipo"). Ficam com
+   `vagas.consultoria = true` e aparecem abaixo dos empregadores diretos. A IA da etapa 4
+   classifica em três tipos: empregador direto, consultoria ou recrutadora.
+8. Filtro `company_type=direct_employer` do TheirStack, quando a empresa vier de lá. Ele
    deixa algumas agências passarem, por isso não substitui as camadas acima.
 
 ### 5. Contato direto da empresa

@@ -114,13 +114,13 @@ class Banco:
     def gravar_vaga(self, empresa_id: UUID, v: Vaga, d: Decisao) -> bool:
         """Grava ou atualiza a vaga. Devolve True se for nova."""
         campos = (v.titulo, v.url, v.descricao or None, d.pais, v.cidade, v.regime,
-                  v.senioridade, d.prioridade, v.publicada_em)
+                  v.senioridade, d.prioridade, v.publicada_em, d.consultoria)
         with self.conn.cursor() as cur:
             cur.execute(
                 """
                 update public.vagas set titulo = %s, url = %s, descricao = %s, pais = %s,
                     cidade = %s, regime = %s, senioridade = %s, prioridade_pais = %s,
-                    publicada_em = %s, vista_ultima_em = now(), ativa = true
+                    publicada_em = %s, consultoria = %s, vista_ultima_em = now(), ativa = true
                 where owner_id = %s and fonte = %s and id_externo = %s
                 returning id
                 """,
@@ -132,8 +132,8 @@ class Banco:
                 """
                 insert into public.vagas (owner_id, empresa_id, fonte, id_externo, chave_dedupe,
                     titulo, url, descricao, pais, cidade, regime, senioridade, prioridade_pais,
-                    publicada_em)
-                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    publicada_em, consultoria)
+                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 on conflict (owner_id, chave_dedupe)
                 do update set vista_ultima_em = now(), ativa = true
                 returning (xmax = 0) as inserida
