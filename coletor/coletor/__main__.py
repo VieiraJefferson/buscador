@@ -225,7 +225,8 @@ async def varrer(args: argparse.Namespace, filtro: Filtro, perfil: dict) -> None
     if banco:
         log.info("novas por fonte: %s", dict(novas))
     for fonte, lista in erros.items():
-        log.warning("erros em %s: %d (ex.: %s)", fonte, len(lista), lista[0])
+        if lista:  # registrar_execucao lê erros[fonte] e cria listas vazias no defaultdict
+            log.warning("erros em %s: %d (ex.: %s)", fonte, len(lista), lista[0])
     if args.dry_run:
         ordem = sorted(aceitas, key=lambda x: (x[1].prioridade or 9, x[1].consultoria))
         for v, d in ordem[:20]:

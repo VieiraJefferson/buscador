@@ -48,3 +48,10 @@ export async function verificarCodigo(_: Estado, form: FormData): Promise<Estado
   if (error) return invalido;
   redirect('/');
 }
+
+/** Encerra a sessão. Ação de servidor (POST com verificação de origem), nunca um link GET. */
+export async function sair() {
+  const supabase = await supabaseServidor();
+  await supabase.auth.signOut();
+  redirect('/entrar');
+}

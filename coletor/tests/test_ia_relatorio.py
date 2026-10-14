@@ -67,7 +67,8 @@ async def test_email_desiste_depois_de_duas_tentativas_ruins():
 
 async def test_avaliacao_normaliza_nota_e_usa_haiku_com_cache():
     a = Avaliacao(tipo_empresa="consultoria", nota=9, justificativa="  boa  ", regime="hibrido",
-                  exige_idioma_excluido=False, idioma_vaga="es")
+                  exige_idioma_excluido=False, idioma_vaga="es",
+                  stack_principal=["Node.js"], stack_compativel=True)
     cliente = _ClienteFalso(avaliacao=a)
     r = await IA(PERFIL, cliente).avaliar("Dev", "InnoIT", "Madrid", "texto")
     assert r.nota == 5 and r.justificativa == "boa"
@@ -94,3 +95,16 @@ def test_relatorio_agrupa_por_pais_e_escapa_html():
     assert "<script>" not in corpo and "&lt;script&gt;" in corpo
     assert corpo.index("Espanha") < corpo.index("Holanda e Alemanha")
     assert "consultoria" in corpo and "https://site.test" in corpo
+
+
+async def test_stack_incompativel_limita_a_nota_a_2():
+    """Regra 14: vaga de outra stack (ex.: Java para quem trabalha com Node/Python) não passa
+    de 2, mesmo que o modelo dê nota alta. A IA decide a stack; o código garante o teto."""
+    a = Avaliacao(tipo_empresa="direto", nota=5, justificativa="ok", regime="remoto",
+                  exige_idioma_excluido=False, idioma_vaga="en",
+                  stack_principal=["Java", "Spring"], stack_compativel=False)
+    cliente = _ClienteFalso(avaliacao=a)
+    r = await IA(PERFIL, cliente).avaliar("Java Fullstack Developer", "Acme", "Berlin", "Java")
+    assert r.nota == 2
+    assert r.stack_principal == ["Java", "Spring"]
+    assert "stack_compativel" in cliente.chamadas[0]["system"][0]["text"]

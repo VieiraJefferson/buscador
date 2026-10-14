@@ -25,12 +25,16 @@ export default async function Inicio() {
       .select('id', { count: 'exact', head: true })
       .eq('owner_id', dono)
       .eq('ativa', true)
+      .eq('descartada', false)
+      .gte('nota', 3)
       .gte('vista_primeira_em', inicioDoDia()),
     supabase
       .from('vagas')
       .select('prioridade_pais, nota, emails_gerados(id), candidaturas(estado)')
       .eq('owner_id', dono)
       .eq('ativa', true)
+      .eq('descartada', false)
+      .gte('nota', 3)
       .limit(2000),
     supabase.from('candidaturas').select('estado').eq('owner_id', dono),
     supabase
