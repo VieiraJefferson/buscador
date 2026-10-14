@@ -9,11 +9,12 @@ Com --dry-run nada é gravado: mostra só os números e alguns exemplos.
 import argparse
 import asyncio
 import logging
+import os
 import random
 from collections import Counter, defaultdict
 from datetime import UTC, datetime
 
-from . import contatos, empresas, fontes
+from . import contatos, empresas, fontes, relatorio
 from .config import (
     carregar_agencias,
     carregar_env_local,
@@ -136,7 +137,7 @@ async def _vagas_dos_agregadores(rede: Rede) -> list[tuple]:
     return resultados
 
 
-async def varrer(args: argparse.Namespace, filtro: Filtro) -> None:
+async def varrer(args: argparse.Namespace, filtro: Filtro, perfil: dict) -> None:
     inicio = datetime.now(UTC)
     banco = None
     if args.dry_run:
@@ -150,11 +151,12 @@ async def varrer(args: argparse.Namespace, filtro: Filtro) -> None:
         from .banco import Banco
 
         cfg = config_banco()
-        banco = Banco(cfg.url, cfg.owner_id)
-        alvos = _amostrar(banco.empresas_monitoradas(), args.amostra)
+        with Banco(cfg.url, cfg.owner_id) as b:  # conexão curta: a rede demora minutos
+            alvos = _amostrar(b.empresas_monitoradas(), args.amostra)
         async with Rede() as rede:
             de_empresas = await _vagas_das_empresas(rede, alvos)
             de_agregadores = await _vagas_dos_agregadores(rede)
+        banco = Banco(cfg.url, cfg.owner_id)
 
     motivos: Counter = Counter()
     lidas: Counter = Counter()
@@ -230,6 +232,83 @@ async def varrer(args: argparse.Namespace, filtro: Filtro) -> None:
             log.info("  [%s %s%s] %-28s | %s | %s", d.prioridade, d.pais or "UE",
                      " consultoria" if d.consultoria else "", v.empresa_nome[:28], v.titulo[:60],
                      v.regime)
+        return
+    await _ia(cfg, perfil)
+    await _relatorio(cfg, inicio, sum(lidas.values()), sum(novas.values()))
+
+
+# Limites por execução (custo controlado; o teto mensal fica no console da Anthropic).
+MAX_AVALIACOES = int(os.environ.get("COLETOR_MAX_AVALIACOES", "200"))
+MAX_EMAILS = int(os.environ.get("COLETOR_MAX_EMAILS", "20"))
+NOTA_MINIMA_EMAIL = 4
+
+
+async def _ia(cfg, perfil: dict) -> None:
+    """Etapa 4: Haiku avalia as vagas sem nota; Sonnet escreve os emails das melhores."""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        log.info("IA: ANTHROPIC_API_KEY ausente, etapa pulada")
+        return
+    from .banco import Banco
+    from .ia import IA, MODELO_EMAIL
+
+    ia = IA(perfil)
+    sem = asyncio.Semaphore(4)
+    with Banco(cfg.url, cfg.owner_id) as b:
+        pendentes = b.vagas_sem_avaliacao(MAX_AVALIACOES)
+
+    async def avaliar(linha):
+        vaga_id, empresa_id, titulo, empresa, local, descricao = linha
+        async with sem:
+            try:
+                return vaga_id, empresa_id, await ia.avaliar(titulo, empresa, local, descricao)
+            except Exception as e:  # noqa: BLE001 (uma vaga com erro não para as outras)
+                log.warning("IA: avaliação falhou (%s)", type(e).__name__)
+                return vaga_id, empresa_id, None
+
+    avaliacoes = await asyncio.gather(*(avaliar(x) for x in pendentes))
+    with Banco(cfg.url, cfg.owner_id) as b:
+        for vaga_id, empresa_id, a in avaliacoes:
+            if a:
+                b.gravar_avaliacao(vaga_id, empresa_id, a)
+        candidatas = b.vagas_para_email(MAX_EMAILS, NOTA_MINIMA_EMAIL)
+    log.info("IA: %d vagas avaliadas (%d sem resposta); %d candidatas a email",
+             sum(1 for *_, a in avaliacoes if a), sum(1 for *_, a in avaliacoes if not a),
+             len(candidatas))
+
+    async def escrever(linha):
+        vaga_id, empresa_id, titulo, empresa, local, descricao, idioma = linha
+        async with sem:
+            try:
+                e = await ia.escrever_email(titulo, empresa, local, descricao, idioma)
+            except Exception as erro:  # noqa: BLE001
+                log.warning("IA: email falhou (%s)", type(erro).__name__)
+                e = None
+        return vaga_id, empresa_id, idioma, e
+
+    emails = await asyncio.gather(*(escrever(x) for x in candidatas))
+    with Banco(cfg.url, cfg.owner_id) as b:
+        for vaga_id, empresa_id, idioma, e in emails:
+            if e:
+                b.gravar_email(vaga_id, empresa_id, idioma, e.assunto, e.corpo, MODELO_EMAIL)
+    log.info("IA: %d emails gerados", sum(1 for *_, e in emails if e))
+
+
+async def _relatorio(cfg, inicio: datetime, lidas: int, novas: int) -> None:
+    """Etapa 5: relatório diário pelo Resend."""
+    chave, destino = os.environ.get("RESEND_API_KEY"), os.environ.get("RELATORIO_DESTINO")
+    if not chave or not destino:
+        log.info("relatório: RESEND_API_KEY ou RELATORIO_DESTINO ausente, etapa pulada")
+        return
+    from .banco import Banco
+
+    with Banco(cfg.url, cfg.owner_id) as b:
+        vagas = b.vagas_do_relatorio(inicio, 40)
+    assunto, corpo = relatorio.montar(vagas, novas, lidas, os.environ.get("SITE_URL"))
+    async with Rede() as rede:
+        try:
+            await relatorio.enviar(rede, chave, destino, assunto, corpo)
+        except ErroFonte as e:
+            log.warning("relatório não enviado: %s", e)
 
 
 def main() -> None:
@@ -244,8 +323,31 @@ def main() -> None:
     logging.getLogger("httpx").setLevel(logging.WARNING)  # não registrar URLs de cada pedido
 
     carregar_env_local()
-    filtro = Filtro(carregar_perfil(), carregar_agencias())
-    asyncio.run(descobrir(args, filtro) if args.comando == "descobrir" else varrer(args, filtro))
+    perfil = _perfil_efetivo(args.dry_run)
+    filtro = Filtro(perfil, carregar_agencias())
+    if args.comando == "descobrir":
+        asyncio.run(descobrir(args, filtro))
+    else:
+        asyncio.run(varrer(args, filtro, perfil))
+
+
+def _perfil_efetivo(dry_run: bool) -> dict:
+    """O perfil editado no site (tabela perfis) manda; config/perfil.yaml é a reserva."""
+    if not dry_run:
+        from .banco import Banco
+
+        cfg = config_banco()
+        with Banco(cfg.url, cfg.owner_id) as b:
+            try:
+                dados = b.perfil()
+            except Exception:  # noqa: BLE001 (tabela ainda não criada: migration 0003)
+                b.conn.rollback()
+                dados = None
+        if dados:
+            log.info("perfil: lido do banco")
+            return dados
+    log.info("perfil: lido de config/perfil.yaml")
+    return carregar_perfil()
 
 
 if __name__ == "__main__":

@@ -180,6 +180,104 @@ class Banco:
                 (self.owner, fonte, inicio, lidas, novas, Jsonb(erros[:50])),
             )
 
+    # --- perfil e IA ------------------------------------------------------------
+
+    def perfil(self) -> dict | None:
+        """Perfil editado no site (tabela perfis). None se ainda não existir."""
+        with self.conn.cursor() as cur:
+            cur.execute("select dados from public.perfis where owner_id = %s", (self.owner,))
+            linha = cur.fetchone()
+            return linha[0] if linha else None
+
+    def vagas_sem_avaliacao(self, limite: int) -> list[tuple]:
+        """(id, empresa_id, titulo, empresa, local, descricao), as mais prioritárias primeiro."""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                select v.id, v.empresa_id, v.titulo, e.nome,
+                       concat_ws(', ', v.cidade, v.pais), coalesce(v.descricao, '')
+                from public.vagas v join public.empresas e on e.id = v.empresa_id
+                where v.owner_id = %s and v.ativa and v.nota is null
+                order by v.prioridade_pais nulls last, v.vista_primeira_em desc
+                limit %s
+                """,
+                (self.owner, limite),
+            )
+            return cur.fetchall()
+
+    def gravar_avaliacao(self, vaga_id: UUID, empresa_id: UUID, a) -> None:
+        """a: ia.Avaliacao. Recrutadora sai da lista e a empresa fica marcada como agência."""
+        recrutadora = a.tipo_empresa == "recrutadora"
+        ativa = not (recrutadora or a.exige_idioma_excluido or a.regime == "presencial")
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                update public.vagas set nota = %s, nota_justificativa = %s, idioma = %s,
+                    consultoria = consultoria or %s, ativa = ativa and %s,
+                    regime = case when regime = 'desconhecido' then %s else regime end
+                where owner_id = %s and id = %s
+                """,
+                (a.nota, a.justificativa, a.idioma_vaga, a.tipo_empresa == "consultoria", ativa,
+                 a.regime, self.owner, vaga_id),
+            )
+        if recrutadora:
+            self.marcar_agencia(empresa_id, "classificada como recrutadora pela IA")
+
+    def vagas_para_email(self, limite: int, nota_minima: int) -> list[tuple]:
+        """(id, empresa_id, titulo, empresa, local, descricao, idioma) sem email gerado."""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                select v.id, v.empresa_id, v.titulo, e.nome, concat_ws(', ', v.cidade, v.pais),
+                       coalesce(v.descricao, ''), coalesce(v.idioma, 'en')
+                from public.vagas v join public.empresas e on e.id = v.empresa_id
+                where v.owner_id = %s and v.ativa and v.nota >= %s and not e.bloqueada
+                  and not exists (select 1 from public.emails_gerados g
+                                  where g.owner_id = v.owner_id and g.vaga_id = v.id)
+                order by v.prioridade_pais nulls last, v.consultoria, v.nota desc
+                limit %s
+                """,
+                (self.owner, nota_minima, limite),
+            )
+            return cur.fetchall()
+
+    def gravar_email(self, vaga_id: UUID, empresa_id: UUID, idioma: str, assunto: str,
+                     corpo: str, modelo: str) -> None:
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "select id from public.contatos where owner_id = %s and empresa_id = %s "
+                "order by (tipo = 'nominal'), criado_em limit 1",
+                (self.owner, empresa_id),
+            )
+            contato = cur.fetchone()
+            cur.execute(
+                """
+                insert into public.emails_gerados (owner_id, vaga_id, contato_id, idioma, assunto,
+                    corpo, modelo)
+                values (%s, %s, %s, %s, %s, %s, %s)
+                """,
+                (self.owner, vaga_id, contato[0] if contato else None, idioma, assunto, corpo,
+                 modelo),
+            )
+
+    def vagas_do_relatorio(self, desde: datetime, limite: int) -> list[tuple]:
+        """Vagas novas desde `desde`: (titulo, empresa, pais, regime, nota, consultoria, url,
+        tem_email, justificativa)."""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                select v.titulo, e.nome, v.pais, v.regime, v.nota, v.consultoria, v.url,
+                       exists (select 1 from public.emails_gerados g where g.vaga_id = v.id),
+                       v.nota_justificativa
+                from public.vagas v join public.empresas e on e.id = v.empresa_id
+                where v.owner_id = %s and v.ativa and v.vista_primeira_em >= %s
+                order by v.prioridade_pais nulls last, v.consultoria, v.nota desc nulls last
+                limit %s
+                """,
+                (self.owner, desde, limite),
+            )
+            return cur.fetchall()
+
     def creditos_gastos_no_mes(self, fonte: str) -> int:
         """Vagas devolvidas pela fonte no mês corrente (no TheirStack, 1 vaga = 1 crédito)."""
         with self.conn.cursor() as cur:

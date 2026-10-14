@@ -188,7 +188,10 @@ buscador/
 
 ## Em aberto
 
-1. Versão exata do Next.js e das bibliotecas, confirmada no plano de implementação.
+1. ~~Versão do Next.js~~: Next.js 16.3.8, React 19.3, TypeScript 6.0.3, Tailwind 4.3 e componentes shadcn
+   sobre radix-ui (ver [`docs/planos/2026-10-14-site.md`](../planos/2026-10-14-site.md)). No Next 16 o
+   `middleware.ts` chama-se `proxy.ts`. O site também comanda o coletor e edita o perfil:
+   [ADR-0003](ADR-0003-site-como-painel-de-controle.md).
 2. ~~Esquema das tabelas~~: definido em
    [`docs/planos/2026-10-12-esquema-banco.md`](../planos/2026-10-12-esquema-banco.md).
    O coletor usa um usuário Postgres `coletor` com acesso restrito; a chave secreta (service

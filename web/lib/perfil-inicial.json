@@ -1,0 +1,251 @@
+{
+  "candidato": {
+    "nome": "Jefferson Vieira",
+    "cargo": "Full-Stack Developer",
+    "reside_em": "PT",
+    "links": {
+      "portfolio": "https://portifolio-jefferson-vieira.vercel.app/",
+      "github": "https://github.com/VieiraJefferson",
+      "linkedin": "https://www.linkedin.com/in/jefferson-vieira-6b660b242/"
+    }
+  },
+  "idiomas": {
+    "portugues": "nativo",
+    "ingles": "avancado",
+    "espanhol": "fluente",
+    "exigencias_excluidas": [
+      "alemao",
+      "holandes"
+    ]
+  },
+  "senioridade": {
+    "incluir": [
+      "mid",
+      "medior",
+      "regular",
+      "intermediate",
+      "semi-senior",
+      "senior"
+    ],
+    "excluir": [
+      "junior",
+      "jr",
+      "entry level",
+      "graduate",
+      "trainee",
+      "intern",
+      "internship",
+      "lead",
+      "staff",
+      "principal",
+      "head",
+      "director",
+      "manager",
+      "architect",
+      "executive"
+    ]
+  },
+  "titulos_alvo": [
+    "Full-Stack Developer",
+    "Frontend Developer",
+    "React Developer",
+    "Backend Developer (Node.js)",
+    "Software Engineer",
+    "Product Engineer",
+    "AI Engineer",
+    "Agentic / LLM Application Developer"
+  ],
+  "competencias": {
+    "frontend": [
+      "React",
+      "Next.js",
+      "TypeScript",
+      "JavaScript",
+      "Tailwind CSS",
+      "Radix UI",
+      "shadcn/ui",
+      "Framer Motion",
+      "Styled Components",
+      "React Native",
+      "GraphQL",
+      "MUI",
+      "HTML",
+      "CSS"
+    ],
+    "backend": [
+      "Node.js",
+      "Express",
+      "Python",
+      "REST APIs",
+      "OpenAPI/Swagger",
+      "Zod"
+    ],
+    "dados": [
+      "PostgreSQL",
+      "Supabase",
+      "MySQL",
+      "MongoDB",
+      "Knex",
+      "Firebase"
+    ],
+    "cloud": [
+      "AWS ECS",
+      "AWS ECR",
+      "AWS S3",
+      "AWS SQS",
+      "AWS KMS",
+      "AWS Secrets Manager",
+      "OCI (Oracle Cloud)"
+    ],
+    "devops": [
+      "Docker",
+      "GitHub Actions",
+      "CI/CD",
+      "Kubernetes",
+      "Terraform",
+      "Ansible",
+      "ArgoCD",
+      "Prometheus",
+      "Grafana"
+    ],
+    "qualidade_seguranca": [
+      "Jest",
+      "Supertest",
+      "Vitest",
+      "Gitleaks",
+      "Semgrep"
+    ],
+    "ia": [
+      "Vertex AI (Gemini)",
+      "OpenAI Agents SDK",
+      "CrewAI",
+      "LangGraph",
+      "AutoGen",
+      "MCP",
+      "Claude Code",
+      "arquitetura de agentes",
+      "LLM integration"
+    ],
+    "metodos": [
+      "Scrum",
+      "Kanban",
+      "agile"
+    ]
+  },
+  "experiencia": [
+    {
+      "cargo": "Software Architect & Full-Stack Developer (Independent Contractor)",
+      "empresa": "Bob Burnquist Holdings, LLC (health tech, EUA)",
+      "periodo": "2025-10 / atual",
+      "local": "Portugal, remoto",
+      "destaques": [
+        "Único engenheiro e arquiteto; plataforma construída do zero até pronta para lançamento (ainda não pública; apps nativos em React Native planejados).",
+        "Decidiu e conduziu a migração da Oracle Cloud (OCI) para a AWS (ECS, ECR, S3, SQS, KMS, Secrets Manager).",
+        "Envelope encryption KEK/DEK com AWS KMS; exames médicos cifrados no S3.",
+        "Next.js, React, TypeScript; Node.js + Express; Supabase; Docker em AWS ECR/ECS.",
+        "GitHub Actions, Jest, OpenAPI, Gitleaks e Semgrep; Vertex AI (Gemini); Privy (OAuth); Stripe.",
+        "Participa das decisões de produto e de arquitetura (revisões semanais com os advisors; nomes não são citados)."
+      ]
+    },
+    {
+      "cargo": "Full-Stack & Web3 Developer (projeto para cliente)",
+      "empresa": "gotas.social",
+      "periodo": "2025-06 / 2025-12",
+      "local": "remoto",
+      "destaques": [
+        "Marketplace e launchpad NFT em mainnet na Chiliz Chain com contratos thirdweb; hooks próprios para lazy minting e batch minting; leilões em CHZ; login via thirdweb.",
+        "Pipeline de IA generativa para camisas, estádios e escudos personalizados (agentes que leem imagens em base64 e regeneram; depois DALL-E 3 com imagem de referência)."
+      ]
+    },
+    {
+      "cargo": "Full Stack Developer Jr.",
+      "empresa": "frete.com",
+      "periodo": "2023-06 / 2024-12",
+      "local": "São Paulo, Brasil, remoto",
+      "destaques": [
+        "GraphQL, React Native, React, TypeScript e Next.js, da concepção à entrega.",
+        "Performance web +30% e incidentes de segurança -25%."
+      ]
+    },
+    {
+      "cargo": "Full-Stack Development Bootcamp",
+      "empresa": "Labenu",
+      "periodo": "2022-03 / 2023-04",
+      "destaques": [
+        "Mais de 1000 horas práticas e 10 projetos de clientes com Scrum/Kanban."
+      ]
+    }
+  ],
+  "formacao": [
+    "Técnico de nível médio em Informática (Delphi, Pascal, Visual Basic, C++, algoritmos, redes, hardware)"
+  ],
+  "formacao_complementar": [
+    "AI Engineer Agentic Track: The Complete Agent & MCP Course",
+    "React: The Complete Guide (incl. Next.js, Redux)",
+    "Machine Learning A-Z: ML, DL and AI with AWS, Python & R",
+    "The Ultimate MySQL Bootcamp",
+    "100 Days of Code: The Complete Python Pro Bootcamp",
+    "Decoding DevOps: From Basics to Advanced Projects with AI",
+    "Kubernetes Certified Application Developer (CKAD) with Tests",
+    "Software Architecture & System Design Practical Case Studies",
+    "Software Architecture & System Design: Practice Tests"
+  ],
+  "localidade": {
+    "prioridades": [
+      {
+        "ordem": 1,
+        "paises": [
+          "ES"
+        ],
+        "regimes": [
+          "remoto",
+          "hibrido"
+        ]
+      },
+      {
+        "ordem": 2,
+        "paises": [
+          "NL",
+          "DE"
+        ],
+        "regimes": [
+          "remoto",
+          "hibrido"
+        ]
+      },
+      {
+        "ordem": 3,
+        "paises": [
+          "PT"
+        ],
+        "regimes": [
+          "remoto",
+          "hibrido"
+        ]
+      },
+      {
+        "ordem": 4,
+        "paises": [
+          "UE_RESTANTE"
+        ],
+        "regimes": [
+          "remoto",
+          "hibrido"
+        ]
+      }
+    ],
+    "excluir_paises": [
+      "BR"
+    ]
+  },
+  "empresas": {
+    "apenas_contratacao_direta": true
+  },
+  "envio": {
+    "meta_semanal": 100,
+    "estilo_email": {
+      "sem_travessoes": true,
+      "apresentar_como": "candidato"
+    }
+  }
+}
