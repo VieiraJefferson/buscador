@@ -1,13 +1,13 @@
 name: coletor-varrer
 
-# Varredura diária: lê as vagas, filtra e grava; depois a IA avalia e escreve os emails
+# Varredura: lê as vagas, filtra e grava; depois a IA avalia e escreve os emails
 # (etapa 4) e o relatório sai pelo Resend (etapa 5).
-# Diária, ou à mão em Actions → coletor-varrer → Run workflow.
-# Plano: docs/planos/2026-10-13-plano-coletor-v1.md
+# Segunda e quinta, ou à mão pelo site ou em Actions → coletor-varrer → Run workflow.
+# Planos: docs/planos/2026-10-13-plano-coletor-v1.md e 2026-10-14-filtro-stack-e-descarte.md
 
 on:
   schedule:
-    - cron: "0 6 * * *" # todos os dias, 06:00 UTC
+    - cron: "0 6 * * 1,4" # segunda e quinta, 06:00 UTC (na segunda, depois da descoberta)
   workflow_dispatch:
 
 permissions:
@@ -20,7 +20,7 @@ concurrency:
 jobs:
   varrer:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 150
     defaults:
       run:
         working-directory: coletor
@@ -40,4 +40,8 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RELATORIO_DESTINO: ${{ secrets.RELATORIO_DESTINO }}
           SITE_URL: ${{ vars.SITE_URL }}
+          # Limites por execução (decisão de 2026-10-14; custo no plano do filtro de stack)
+          COLETOR_MAX_AVALIACOES: "8000"
+          COLETOR_MAX_EMAILS: "50"
+          COLETOR_CONCORRENCIA_IA: "10"
         run: uv run python -m coletor varrer
