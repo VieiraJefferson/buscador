@@ -69,8 +69,23 @@
   numa lista vazia do `defaultdict`, em `__main__.py`. A IA e o relatório nunca rodaram.
 - Corrigido: o log só lê listas com conteúdo.
 
-## Em aberto (decisão do Jefferson)
+## 5. Frequência e limites (decisão do Jefferson, 2026-10-14)
 
-- **Fila sem nota:** o limite atual é de 200 avaliações por execução, para uma fila de cerca
-  de 7 mil vagas. Aumentar `COLETOR_MAX_AVALIACOES` muda o custo mensal; ver a ressalva no
-  diário.
+A ideia é filtrar bem e trabalhar nas vagas que já existem, em vez de varrer todo dia.
+
+| Item | Antes | Agora |
+|---|---|---|
+| Varredura | todo dia, 06:00 UTC | **segunda e quinta, 06:00 UTC** (na segunda, depois da descoberta das 05:00) |
+| Avaliações por execução | 200 | **8.000**, o que limpa a fila de cerca de 7 mil vagas na primeira execução |
+| Avaliações em paralelo | 4 | **10** (`COLETOR_CONCORRENCIA_IA`) |
+| Emails por execução | 20 | **50**, cerca de 100 por semana |
+| Tempo máximo do workflow | 60 min | **150 min** |
+
+- **Gravação por lote:** as avaliações são gravadas a cada 200 (`LOTE_AVALIACOES`). Se o
+  workflow passar do tempo, o que já foi avaliado, e pago, fica no banco.
+- **Custo estimado**, pelo preço oficial: Haiku 5.5 a US$ 0,10 por milhão de tokens de
+  entrada e US$ 0,50 por milhão de saída; Sonnet 5.5 a US$ 2 e US$ 10.
+  - avaliação: cerca de US$ 0,0005; limpar a fila custa cerca de US$ 3,50, uma vez só;
+  - email: cerca de US$ 0,02 a 0,03; 100 por semana dá cerca de US$ 9 a 13 por mês.
+- **Ressalva do ponto focal técnico:** o total mensal fica perto do teto de US$ 15. A trava
+  final é o limite no console da Anthropic.

@@ -32,7 +32,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 
 | Tema | Decisão | Fonte |
 |---|---|---|
-| Coletor | Python, rodado uma vez por dia pelo GitHub Actions num repositório privado | ADR-0001 |
+| Coletor | Python no GitHub Actions num repositório privado. **Varredura na segunda e na quinta** (até 8.000 avaliações e 50 emails por execução); descoberta na segunda. | ADR-0001, plano do filtro de stack |
 | Site | Next.js + React + TypeScript no Vercel, pensado para o celular, com o visual do portfólio (cores, Montserrat/Inter/Space Mono, Lenis) | ADR-0002 |
 | Banco | Supabase na Irlanda (eu-west-1), 6 tabelas com RLS | ADR-0002, plano do esquema |
 | Acesso ao banco pelo coletor | Usuário Postgres `coletor` com acesso restrito, via pooler de sessão. **A chave secreta (service role) não é usada.** | Plano do esquema |

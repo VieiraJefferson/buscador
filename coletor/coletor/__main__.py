@@ -241,6 +241,8 @@ async def varrer(args: argparse.Namespace, filtro: Filtro, perfil: dict) -> None
 # Limites por execução (custo controlado; o teto mensal fica no console da Anthropic).
 MAX_AVALIACOES = int(os.environ.get("COLETOR_MAX_AVALIACOES", "200"))
 MAX_EMAILS = int(os.environ.get("COLETOR_MAX_EMAILS", "20"))
+CONCORRENCIA_IA = int(os.environ.get("COLETOR_CONCORRENCIA_IA", "4"))
+LOTE_AVALIACOES = 200  # grava a cada lote: um timeout não perde o que já foi pago
 NOTA_MINIMA_EMAIL = 4
 
 
@@ -253,7 +255,7 @@ async def _ia(cfg, perfil: dict) -> None:
     from .ia import IA, MODELO_EMAIL
 
     ia = IA(perfil)
-    sem = asyncio.Semaphore(4)
+    sem = asyncio.Semaphore(CONCORRENCIA_IA)
     with Banco(cfg.url, cfg.owner_id) as b:
         pendentes = b.vagas_sem_avaliacao(MAX_AVALIACOES)
 
@@ -266,11 +268,16 @@ async def _ia(cfg, perfil: dict) -> None:
                 log.warning("IA: avaliação falhou (%s)", type(e).__name__)
                 return vaga_id, empresa_id, None
 
-    avaliacoes = await asyncio.gather(*(avaliar(x) for x in pendentes))
+    avaliacoes = []
+    for i in range(0, len(pendentes), LOTE_AVALIACOES):
+        lote = await asyncio.gather(*(avaliar(x) for x in pendentes[i:i + LOTE_AVALIACOES]))
+        with Banco(cfg.url, cfg.owner_id) as b:
+            for vaga_id, empresa_id, a in lote:
+                if a:
+                    b.gravar_avaliacao(vaga_id, empresa_id, a)
+        avaliacoes += lote
+        log.info("IA: %d de %d avaliadas", len(avaliacoes), len(pendentes))
     with Banco(cfg.url, cfg.owner_id) as b:
-        for vaga_id, empresa_id, a in avaliacoes:
-            if a:
-                b.gravar_avaliacao(vaga_id, empresa_id, a)
         candidatas = b.vagas_para_email(MAX_EMAILS, NOTA_MINIMA_EMAIL)
     log.info("IA: %d vagas avaliadas (%d sem resposta); %d candidatas a email",
              sum(1 for *_, a in avaliacoes if a), sum(1 for *_, a in avaliacoes if not a),
