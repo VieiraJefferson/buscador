@@ -119,12 +119,18 @@ class Banco:
             cur.execute(
                 """
                 update public.vagas set titulo = %s, url = %s, descricao = %s, pais = %s,
-                    cidade = %s, regime = %s, senioridade = %s, prioridade_pais = %s,
-                    publicada_em = %s, consultoria = %s, vista_ultima_em = now(), ativa = true
+                    cidade = %s, senioridade = %s, prioridade_pais = %s, publicada_em = %s,
+                    -- o que a IA concluiu não é desfeito pela fonte: regime só muda se a
+                    -- fonte souber, consultoria só liga; descartada nunca é tocada aqui
+                    regime = case when %s = 'desconhecido' then regime else %s end,
+                    consultoria = consultoria or %s,
+                    vista_ultima_em = now(), ativa = true
                 where owner_id = %s and fonte = %s and id_externo = %s
                 returning id
                 """,
-                (*campos, self.owner, v.fonte, v.id_externo),
+                (v.titulo, v.url, v.descricao or None, d.pais, v.cidade, v.senioridade,
+                 d.prioridade, v.publicada_em, v.regime, v.regime, d.consultoria,
+                 self.owner, v.fonte, v.id_externo),
             )
             if cur.fetchone():
                 return False
@@ -197,7 +203,7 @@ class Banco:
                 select v.id, v.empresa_id, v.titulo, e.nome,
                        concat_ws(', ', v.cidade, v.pais), coalesce(v.descricao, '')
                 from public.vagas v join public.empresas e on e.id = v.empresa_id
-                where v.owner_id = %s and v.ativa and v.nota is null
+                where v.owner_id = %s and v.ativa and not v.descartada and v.nota is null
                 order by v.prioridade_pais nulls last, v.vista_primeira_em desc
                 limit %s
                 """,
@@ -208,16 +214,16 @@ class Banco:
     def gravar_avaliacao(self, vaga_id: UUID, empresa_id: UUID, a) -> None:
         """a: ia.Avaliacao. Recrutadora sai da lista e a empresa fica marcada como agência."""
         recrutadora = a.tipo_empresa == "recrutadora"
-        ativa = not (recrutadora or a.exige_idioma_excluido or a.regime == "presencial")
+        descartar = recrutadora or a.exige_idioma_excluido or a.regime == "presencial"
         with self.conn.cursor() as cur:
             cur.execute(
                 """
                 update public.vagas set nota = %s, nota_justificativa = %s, idioma = %s,
-                    consultoria = consultoria or %s, ativa = ativa and %s,
+                    consultoria = consultoria or %s, descartada = descartada or %s,
                     regime = case when regime = 'desconhecido' then %s else regime end
                 where owner_id = %s and id = %s
                 """,
-                (a.nota, a.justificativa, a.idioma_vaga, a.tipo_empresa == "consultoria", ativa,
+                (a.nota, a.justificativa, a.idioma_vaga, a.tipo_empresa == "consultoria", descartar,
                  a.regime, self.owner, vaga_id),
             )
         if recrutadora:
@@ -231,7 +237,8 @@ class Banco:
                 select v.id, v.empresa_id, v.titulo, e.nome, concat_ws(', ', v.cidade, v.pais),
                        coalesce(v.descricao, ''), coalesce(v.idioma, 'en')
                 from public.vagas v join public.empresas e on e.id = v.empresa_id
-                where v.owner_id = %s and v.ativa and v.nota >= %s and not e.bloqueada
+                where v.owner_id = %s and v.ativa and not v.descartada and v.nota >= %s
+                  and not e.bloqueada
                   and not exists (select 1 from public.emails_gerados g
                                   where g.owner_id = v.owner_id and g.vaga_id = v.id)
                 order by v.prioridade_pais nulls last, v.consultoria, v.nota desc
@@ -260,9 +267,10 @@ class Banco:
                  modelo),
             )
 
-    def vagas_do_relatorio(self, desde: datetime, limite: int) -> list[tuple]:
-        """Vagas novas desde `desde`: (titulo, empresa, pais, regime, nota, consultoria, url,
-        tem_email, justificativa)."""
+    def vagas_do_relatorio(self, desde: datetime, limite: int,
+                           nota_minima: int = 3) -> list[tuple]:
+        """Vagas novas desde `desde`, já avaliadas e com nota >= nota_minima: (titulo, empresa,
+        pais, regime, nota, consultoria, url, tem_email, justificativa)."""
         with self.conn.cursor() as cur:
             cur.execute(
                 """
@@ -270,11 +278,12 @@ class Banco:
                        exists (select 1 from public.emails_gerados g where g.vaga_id = v.id),
                        v.nota_justificativa
                 from public.vagas v join public.empresas e on e.id = v.empresa_id
-                where v.owner_id = %s and v.ativa and v.vista_primeira_em >= %s
+                where v.owner_id = %s and v.ativa and not v.descartada
+                  and v.nota >= %s and not e.bloqueada and v.vista_primeira_em >= %s
                 order by v.prioridade_pais nulls last, v.consultoria, v.nota desc nulls last
                 limit %s
                 """,
-                (self.owner, desde, limite),
+                (self.owner, nota_minima, desde, limite),
             )
             return cur.fetchall()
 

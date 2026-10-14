@@ -8,6 +8,8 @@ export const dynamic = 'force-dynamic';
 
 type Busca = Record<string, string | undefined>;
 
+const NOTA_PADRAO = 3;
+
 export default async function VagasPage({ searchParams }: { searchParams: Promise<Busca> }) {
   const f = await searchParams;
   const { supabase, user } = await exigirUsuario();
@@ -19,12 +21,15 @@ export default async function VagasPage({ searchParams }: { searchParams: Promis
     )
     .eq('owner_id', user.id)
     .eq('ativa', true)
+    .eq('descartada', false)
     .eq('empresas.bloqueada', false);
 
   if (f.prioridade && /^[1-4]$/.test(f.prioridade)) consulta = consulta.eq('prioridade_pais', Number(f.prioridade));
   if (f.pais && /^[A-Z]{2}$/.test(f.pais)) consulta = consulta.eq('pais', f.pais);
   if (f.regime && ['remoto', 'hibrido', 'desconhecido'].includes(f.regime)) consulta = consulta.eq('regime', f.regime);
-  if (f.nota && /^[1-5]$/.test(f.nota)) consulta = consulta.gte('nota', Number(f.nota));
+  // Nota: por padrão só vagas já avaliadas com 3 ou mais (stack e perfil batem).
+  if (f.nota === 'sem') consulta = consulta.is('nota', null);
+  else if (f.nota !== 'todas') consulta = consulta.gte('nota', f.nota && /^[1-5]$/.test(f.nota) ? Number(f.nota) : NOTA_PADRAO);
   if (f.tipo === 'direto') consulta = consulta.eq('consultoria', false);
   if (f.tipo === 'consultoria') consulta = consulta.eq('consultoria', true);
   if (f.estado === 'novas') {

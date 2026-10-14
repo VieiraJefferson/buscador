@@ -35,10 +35,12 @@ const CAMPOS = [
   {
     nome: 'nota',
     rotulo: 'Nota mínima',
+    padrao: '3 ou mais',
     opcoes: [
       ['5', '5'],
       ['4', '4 ou mais'],
-      ['3', '3 ou mais'],
+      ['todas', 'Todas, inclusive sem nota'],
+      ['sem', 'Ainda sem nota'],
     ],
   },
   {
@@ -120,7 +122,7 @@ export function Filtros() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={TODOS}>Todos</SelectItem>
+                    <SelectItem value={TODOS}>{'padrao' in c ? c.padrao : 'Todos'}</SelectItem>
                     {c.opcoes.map(([valor, rotulo]) => (
                       <SelectItem key={valor} value={valor}>
                         {rotulo}

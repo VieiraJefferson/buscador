@@ -38,7 +38,7 @@ export async function marcarEstado(idsBrutos: string[], estadoBruto: string) {
 export async function descartarVagas(idsBrutos: string[]) {
   const ids = Ids.parse(idsBrutos);
   const { supabase, user } = await exigirUsuario();
-  const { error } = await supabase.from('vagas').update({ ativa: false }).eq('owner_id', user.id).in('id', ids);
+  const { error } = await supabase.from('vagas').update({ descartada: true }).eq('owner_id', user.id).in('id', ids);
   if (error) throw new Error('Falha ao descartar');
   revalidatePath('/vagas');
   revalidatePath('/');
