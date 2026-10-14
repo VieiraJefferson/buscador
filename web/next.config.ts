@@ -18,6 +18,13 @@ const csp = [
 
 const config: NextConfig = {
   poweredByHeader: false,
+  // Rotas checadas pelo TypeScript: um link para tela que não existe não compila.
+  typedRoutes: true,
+  experimental: {
+    // Cache do roteador no navegador: voltar a uma aba visitada há menos de 30 s é instantâneo.
+    // Toda ação que muda dados chama revalidatePath, que limpa este cache.
+    staleTimes: { dynamic: 30, static: 180 },
+  },
   async headers() {
     return [
       {

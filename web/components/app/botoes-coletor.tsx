@@ -3,6 +3,7 @@
 import { Loader2, Play, Search } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { Magnetico } from '@/components/app/movimento/magnetico';
 import { Button } from '@/components/ui/button';
 
 /** Botões para disparar o coletor no GitHub Actions (rota /api/coletor, ADR-0003). */
@@ -32,10 +33,12 @@ export function BotoesColetor({ compacto = false, aoDisparar }: { compacto?: boo
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Button onClick={() => disparar('varrer')} disabled={!!enviando} size={compacto ? 'sm' : 'default'}>
-        {enviando === 'varrer' ? <Loader2 className="animate-spin" /> : <Play />}
-        Rodar varredura
-      </Button>
+      <Magnetico>
+        <Button onClick={() => disparar('varrer')} disabled={!!enviando} size={compacto ? 'sm' : 'default'}>
+          {enviando === 'varrer' ? <Loader2 className="animate-spin" /> : <Play />}
+          Rodar varredura
+        </Button>
+      </Magnetico>
       <Button
         variant="outline"
         onClick={() => disparar('descobrir')}

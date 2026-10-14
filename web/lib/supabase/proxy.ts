@@ -1,10 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
+import { opcoesCookie } from './cookies';
 
 const PUBLICAS = ['/entrar', '/auth/', '/manifest.webmanifest', '/icon'];
 
-/** Renova a sessão e manda para /entrar quem não está autenticado (verificação otimista;
- *  a verificação real com getUser() e o email permitido é feita em cada página e ação). */
+/** Renova a sessão e manda para /entrar quem não está autenticado. getClaims() confere a
+ *  assinatura localmente (chave ECC em memória), sem chamada de rede por clique; o email
+ *  permitido é conferido em lib/auth.ts, uma vez por pedido. */
 export async function atualizarSessao(request: NextRequest) {
   let resposta = NextResponse.next({ request });
   const supabase = createServerClient(
@@ -16,16 +18,14 @@ export async function atualizarSessao(request: NextRequest) {
         setAll: (lista) => {
           lista.forEach(({ name, value }) => request.cookies.set(name, value));
           resposta = NextResponse.next({ request });
-          lista.forEach(({ name, value, options }) => resposta.cookies.set(name, value, options));
+          lista.forEach(({ name, value, options }) => resposta.cookies.set(name, value, opcoesCookie(options)));
         },
       },
     },
   );
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
   const caminho = request.nextUrl.pathname;
-  if (!user && !PUBLICAS.some((p) => caminho.startsWith(p))) {
+  if (!data?.claims && !PUBLICAS.some((p) => caminho.startsWith(p))) {
     const url = request.nextUrl.clone();
     url.pathname = '/entrar';
     url.search = '';

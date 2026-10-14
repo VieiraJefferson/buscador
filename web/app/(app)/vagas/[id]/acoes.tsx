@@ -2,11 +2,13 @@
 
 import { Ban, Copy, Mail, MessageSquareReply, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { CampoSelect } from '@/components/app/campo-select';
+import { Magnetico } from '@/components/app/movimento/magnetico';
+import { Secao } from '@/components/app/secao';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { rotas } from '@/lib/rotas';
 import { ESTADOS, type EstadoCandidatura } from '@/lib/tipos';
 import { bloquearEmpresa, descartarVagas, marcarEstado } from '../actions';
 
@@ -23,6 +25,7 @@ const LIMITE_MAILTO = 1800;
 
 export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }: Props) {
   const [pendente, iniciar] = useTransition();
+  const [estadoAtual, setEstadoAtual] = useState(estado);
 
   const executar = (fn: () => Promise<void>, ok: string) =>
     iniciar(async () => {
@@ -58,62 +61,54 @@ export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }
 
   return (
     <div className="grid gap-4 md:grid-cols-[1fr_280px]">
-      <Card>
-        <CardTitle>Email de candidatura</CardTitle>
-        {email ? (
+      <Secao
+        titulo="Email de candidatura"
+        descricao={
+          email
+            ? `Para: ${email.para ?? 'contato não encontrado (veja o anúncio)'}`
+            : 'Ainda sem email gerado. A IA escreve os emails das vagas com nota 4 ou 5 na próxima varredura.'
+        }
+      >
+        {email && (
           <>
-            <CardDescription className="mt-1">
-              Para: {email.para ?? 'contato não encontrado (veja o anúncio)'}
-            </CardDescription>
-            <p className="mt-4 font-semibold">{email.assunto}</p>
-            <p className="mt-2 text-sm whitespace-pre-wrap text-ink-dim">{email.corpo}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button onClick={abrirApp} size="lg">
-                <Mail />
-                Abrir no app de email
-              </Button>
+            <div>
+              <p className="font-semibold">{email.assunto}</p>
+              <p className="mt-2 text-sm whitespace-pre-wrap text-ink-dim">{email.corpo}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Magnetico>
+                <Button onClick={abrirApp} size="lg">
+                  <Mail />
+                  Abrir no app de email
+                </Button>
+              </Magnetico>
               <Button onClick={copiar} variant="outline" size="lg">
                 <Copy />
                 Copiar
               </Button>
             </div>
           </>
-        ) : (
-          <CardDescription className="mt-2">
-            Ainda sem email gerado. A IA escreve os emails das vagas com nota 4 ou 5 na próxima varredura.
-          </CardDescription>
         )}
-      </Card>
+      </Secao>
 
-      <Card className="flex flex-col gap-3">
-        <CardTitle>Candidatura</CardTitle>
-        <Select
-          defaultValue={estado}
-          onValueChange={(v) => executar(() => marcarEstado([vagaId], v), 'Estado atualizado')}
+      <Secao titulo="Candidatura">
+        <CampoSelect
+          rotulo="Estado da candidatura"
+          valor={estadoAtual}
+          aoMudar={(v) => {
+            setEstadoAtual(v as EstadoCandidatura);
+            executar(() => marcarEstado([vagaId], v), 'Estado atualizado');
+          }}
+          opcoes={ESTADOS.map((e) => ({ valor: e.valor, rotulo: e.rotulo }))}
           disabled={pendente}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ESTADOS.map((e) => (
-              <SelectItem key={e.valor} value={e.valor}>
-                {e.rotulo}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
         <Button asChild variant="sea">
-          <Link href={`/assistente?vaga=${vagaId}`}>
+          <Link href={rotas.assistente(vagaId)}>
             <MessageSquareReply />
             Colar resposta da empresa
           </Link>
         </Button>
-        <Button
-          variant="soft"
-          disabled={pendente}
-          onClick={() => executar(() => descartarVagas([vagaId]), 'Vaga descartada')}
-        >
+        <Button variant="soft" disabled={pendente} onClick={() => executar(() => descartarVagas([vagaId]), 'Vaga descartada')}>
           <Trash2 />
           Descartar vaga
         </Button>
@@ -132,7 +127,7 @@ export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }
             {empresaBloqueada ? 'Desbloquear empresa' : 'Bloquear empresa'}
           </Button>
         )}
-      </Card>
+      </Secao>
     </div>
   );
 }

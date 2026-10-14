@@ -41,7 +41,9 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | Segredos | `.env` local (ignorado pelo git), GitHub Secrets e variáveis do Vercel. Nomes claros, lidos num único arquivo de configuração. Gitleaks em cada push. | ADR-0001, plano do esquema |
 
 | Painel de controle | O site roda a varredura e a descoberta (API do GitHub com token fine-grained só de Actions), edita o perfil (tabela `perfis`; o coletor lê de lá) e tem agenda interna e assistente de resposta. | ADR-0003 |
-| Stack do site | Next.js 16.3.8, React 19.3, TypeScript 6.0.3, Tailwind 4.3, shadcn/radix, visual do portfólio, região `dub1` | ADR-0002, plano do site |
+| Stack do site | Next.js 16.3.8, React 19.3, TypeScript 6.0.3, Tailwind 4.3, shadcn/radix, `motion`, Lenis, visual do portfólio, região `dub1` | ADR-0002, plano do site |
+| Frontend | Componentes reutilizáveis (`components/app/`), mapa único de rotas com `typedRoutes`, `loading.tsx` em cada rota, cache do roteador de 30 s, animações do portfólio (transição, Revelar, Magnético, Grão) | ADR-0004 |
+| Sessão no site | `getClaims()` uma vez por pedido (chave ECC, conferência local, sem rede por clique) e cookie `httpOnly` | ADR-0004 |
 
 ## IA
 
