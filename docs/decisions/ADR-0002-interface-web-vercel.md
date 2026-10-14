@@ -99,7 +99,7 @@ Fonte: `Portifolio/src/styles/global.css` e `src/components/core/SmoothScroll.js
 
 | Tela | Conteúdo |
 |---|---|
-| Entrar | Login por link mágico enviado ao email do Jefferson |
+| Entrar | Login por código enviado ao email do Jefferson (era link mágico; ver ADR-0003, seção 5) |
 | Vagas | Lista do dia, agrupada pela prioridade de país (ES; NL e DE; PT; resto da UE), com nota, regime e empresa. Filtros por país, regime e estado. |
 | Vaga | Descrição, contato da empresa e o email gerado. Botões "Copiar" e "Abrir no app de email" (link `mailto:` com destinatário, assunto e corpo). Botão "Marcar como enviada". |
 | Assistente | Campo para colar o email recebido e escolher a vaga relacionada. Devolve a resposta sugerida, com botão "Copiar". |
@@ -107,7 +107,7 @@ Fonte: `Portifolio/src/styles/global.css` e `src/components/core/SmoothScroll.js
 ### 5. Segurança
 
 - **Acesso só do Jefferson:**
-  - login pelo Supabase Auth com link mágico;
+  - login pelo Supabase Auth com código por email (ADR-0003, seção 5);
   - cadastro público desligado e uma lista que permite só o email dele;
   - o servidor confirma a identidade com `auth.getUser()` em cada pedido, nunca com
     `getSession()`.

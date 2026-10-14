@@ -81,6 +81,12 @@ Toda tarefa segue quatro etapas, sem saltar nenhuma:
     é do utilizador; corrigir é prioridade por si só. Priorizar por **risco ao produto e ao
     utilizador**.
 
+17. **Depois de cada commit, entregar o resumo do que foi feito**, em duas partes:
+    - **Não-técnico:** o que mudou para quem usa, em linguagem simples.
+    - **Técnico:** os trechos de código mais relevantes (não o código inteiro), cada um
+      com **como foi feito** e **porquê** (por exemplo, explicar uma função nova, o
+      contrato dela e a decisão por trás). Referenciar `ficheiro:linha`.
+
 ## Ferramentas
 
 - Quadro de tarefas: ler apenas o cartão pedido. Cartões são não-técnicos. Cartões de

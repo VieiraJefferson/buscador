@@ -34,3 +34,9 @@ venv/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Node / Next.js (web/)
+node_modules/
+.next/
+*.tsbuildinfo
+next-env.d.ts

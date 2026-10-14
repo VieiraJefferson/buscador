@@ -4,7 +4,7 @@
 **Data:** 2026-10-14
 **Decisor:** Jefferson Vieira
 **Altera:** [ADR-0001](ADR-0001-arquitetura-buscador-vagas.md) (perfil em arquivo) e
-[ADR-0002](ADR-0002-interface-web-vercel.md) (o site só lia o banco)
+[ADR-0002](ADR-0002-interface-web-vercel.md) (o site só lia o banco; login por link mágico)
 
 ---
 
@@ -92,6 +92,27 @@ Nada sai sozinho: todo email é enviado por você, e toda ação é confirmada p
 - **Cabeçalhos:** CSP, `X-Frame-Options: DENY`, `nosniff` e `Referrer-Policy`.
 
 ---
+
+### 5. Login por código de 6 dígitos (2026-10-14)
+
+- **Problema:** o link mágico abria o site numa aba nova, a partir do app de email, e não na
+  aba onde o login começou.
+- **Decisão:** o login passa a ser por **código de 6 dígitos**, digitado na mesma aba.
+  - `enviarCodigo` chama `signInWithOtp` com `shouldCreateUser: false`, como antes.
+  - `verificarCodigo` chama `verifyOtp({ email, token, type: 'email' })`.
+  - No Supabase, o modelo de email "Magic Link" passa a trazer `{{ .Token }}` em vez do link.
+  - Fonte: documentação do Supabase, "Passwordless email logins": o código vale 1 hora e
+    só se pode pedir outro a cada 60 s.
+- **Mantido:**
+  - o email continua saindo pelo servidor de email do próprio Supabase, sem Resend;
+  - a resposta é igual para qualquer email;
+  - a verificação do `EMAIL_PERMITIDO` continua em toda página e rota;
+  - `form-action 'self'` continua, porque o código é verificado no próprio site;
+  - `/auth/callback` continua para links antigos.
+- **Descartado:** login com Google, porque exigiria um projeto e um cliente OAuth no Google
+  Cloud.
+- **Trade-off:** um código de 6 dígitos é mais fraco que um link longo, o que é compensado
+  pela validade curta e pelo limite de verificações do Supabase.
 
 ## Consequências
 
