@@ -34,7 +34,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | Site | Next.js + React + TypeScript no Vercel, pensado para o celular, com o visual do portfólio (cores, Montserrat/Inter/Space Mono, Lenis) | ADR-0002 |
 | Banco | Supabase na Irlanda (eu-west-1), 6 tabelas com RLS | ADR-0002, plano do esquema |
 | Acesso ao banco pelo coletor | Usuário Postgres `coletor` com acesso restrito, via pooler de sessão. **A chave secreta (service role) não é usada.** | Plano do esquema |
-| Login no site | Supabase Auth com link mágico, cadastro público desligado, só o email do Jefferson | ADR-0002 |
+| Login no site | Supabase Auth com código de 6 dígitos por email, na mesma aba; cadastro público desligado, só o email do Jefferson | ADR-0002, ADR-0003 |
 | Relatório diário | Por email, **enviado pelo Resend** (chave só de envio) para o **email pessoal** do Jefferson. O Gmail dedicado falhou por causa do telefone. | ADR-0001 |
 | Segredos | `.env` local (ignorado pelo git), GitHub Secrets e variáveis do Vercel. Nomes claros, lidos num único arquivo de configuração. Gitleaks em cada push. | ADR-0001, plano do esquema |
 
