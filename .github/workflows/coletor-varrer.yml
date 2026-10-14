@@ -1,6 +1,7 @@
 name: coletor-varrer
 
-# Varredura diária: lê as vagas das empresas guardadas e dos agregadores, filtra e grava.
+# Varredura diária: lê as vagas, filtra e grava; depois a IA avalia e escreve os emails
+# (etapa 4) e o relatório sai pelo Resend (etapa 5).
 # Diária, ou à mão em Actions → coletor-varrer → Run workflow.
 # Plano: docs/planos/2026-10-13-plano-coletor-v1.md
 
@@ -19,7 +20,7 @@ concurrency:
 jobs:
   varrer:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: coletor
@@ -35,4 +36,8 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           OWNER_ID: ${{ secrets.OWNER_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RELATORIO_DESTINO: ${{ secrets.RELATORIO_DESTINO }}
+          SITE_URL: ${{ vars.SITE_URL }}
         run: uv run python -m coletor varrer

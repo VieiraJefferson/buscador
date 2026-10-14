@@ -1,0 +1,104 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Sistema visual do portfólio (Portifolio/src/styles/global.css): tema claro e monocromático,
+   com um toque de turquesa do mar. Os nomes do shadcn apontam para estes tokens. */
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f4f5f9;
+  --bg-elev: #e1e3ee;
+  --ink: #0b0c10;
+  --ink-dim: #3d4250;
+  --ink-mute: #5f6575;
+  --sea: #0b6e77;
+  --sea-bright: #43aab7;
+  --line: rgba(11, 12, 16, 0.08);
+  --line-strong: rgba(11, 12, 16, 0.16);
+  --shadow-card: 0 10px 30px -12px rgba(20, 24, 40, 0.16);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--bg);
+  --card-foreground: var(--ink);
+  --popover: var(--bg);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: #ffffff;
+  --secondary: var(--bg-soft);
+  --secondary-foreground: var(--ink);
+  --muted: var(--bg-soft);
+  --muted-foreground: var(--ink-mute);
+  --accent: var(--bg-soft);
+  --accent-foreground: var(--ink);
+  --destructive: #b42318;
+  --border: var(--line-strong);
+  --input: var(--line-strong);
+  --ring: var(--sea);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sea: var(--sea);
+  --color-sea-bright: var(--sea-bright);
+  --color-soft: var(--bg-soft);
+  --color-elev: var(--bg-elev);
+  --color-ink-dim: var(--ink-dim);
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-montserrat), system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --shadow-card: var(--shadow-card);
+  --ease-out: var(--ease-out);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  /* Lenis controla a rolagem: desliga o scroll suave nativo */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
