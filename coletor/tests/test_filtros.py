@@ -19,16 +19,16 @@ def test_aceita_e_prioriza_espanha(filtro):
 
 
 def test_escolhe_o_pais_de_melhor_prioridade(filtro):
-    d = filtro.avaliar(vaga(paises=["PT", "NL", "FR"]))
-    assert d.pais == "NL" and d.prioridade == 2
+    d = filtro.avaliar(vaga(paises=["NL", "PT", "FR"]))
+    assert d.pais == "PT" and d.prioridade == 2  # 2026-11-02: Portugal antes da Holanda
 
 
 def test_alemanha_fora_da_busca(filtro):
     # Decisão de 2026-11-02: a Alemanha saiu. Vaga só na Alemanha é rejeitada; com outro
     # país, vale o outro.
     assert not filtro.avaliar(vaga(paises=["DE"])).aceita
-    d = filtro.avaliar(vaga(paises=["DE", "PT"]))
-    assert d.pais == "PT" and d.prioridade == 3
+    d = filtro.avaliar(vaga(paises=["DE", "NL"]))
+    assert d.pais == "NL" and d.prioridade == 3
 
 
 def test_resto_da_ue_e_prioridade_4_e_fora_da_ue_rejeita(filtro):

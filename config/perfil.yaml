@@ -106,8 +106,8 @@ localidade:
   # Ordem = prioridade no relatório. Presencial sempre excluído.
   prioridades:
     - { ordem: 1, paises: [ES], regimes: [remoto, hibrido] }
-    - { ordem: 2, paises: [NL], regimes: [remoto, hibrido] }
-    - { ordem: 3, paises: [PT], regimes: [remoto, hibrido] }
+    - { ordem: 2, paises: [PT], regimes: [remoto, hibrido] }
+    - { ordem: 3, paises: [NL], regimes: [remoto, hibrido] }
     - { ordem: 4, paises: [UE_RESTANTE], regimes: [remoto, hibrido] }
   excluir_paises: [BR, DE]        # Alemanha fora desde 2026-11-02
 

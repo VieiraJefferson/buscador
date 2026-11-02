@@ -16,7 +16,7 @@ URL = "https://api.theirstack.com/v1/jobs/search"
 LIMITE_MENSAL = 200
 ORCAMENTO_SEMANAL = 50
 # Divisão do orçamento semanal pela prioridade de país (ADR-0001, seção 2)
-DIVISAO = [(("ES",), 25), (("NL",), 15), (("PT",), 10)]  # Alemanha fora (2026-11-02)
+DIVISAO = [(("ES",), 25), (("PT",), 15), (("NL",), 10)]  # 2026-11-02: sem Alemanha, PT > NL
 
 TITULOS = [
     "full stack", "fullstack", "frontend", "front end", "backend", "back end",
@@ -43,7 +43,7 @@ def corpo(paises: tuple[str, ...], limite: int, agencias: list[str]) -> dict:
 
 
 def dividir(orcamento: int) -> list[tuple[tuple[str, ...], int]]:
-    """Reparte o orçamento disponível mantendo a proporção 25/15/10."""
+    """Reparte o orçamento disponível mantendo a proporção 25/15/10 (ES/PT/NL)."""
     if orcamento <= 0:
         return []
     total = sum(n for _, n in DIVISAO)

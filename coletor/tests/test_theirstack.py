@@ -12,8 +12,8 @@ from tests.conftest import amostra
 
 
 def test_divide_orcamento_pela_prioridade_de_pais():
-    assert theirstack.dividir(50) == [(("ES",), 25), (("NL",), 15), (("PT",), 10)]
-    assert theirstack.dividir(5) == [(("ES",), 3), (("NL",), 1), (("PT",), 1)]
+    assert theirstack.dividir(50) == [(("ES",), 25), (("PT",), 15), (("NL",), 10)]
+    assert theirstack.dividir(5) == [(("ES",), 3), (("PT",), 1), (("NL",), 1)]
     assert theirstack.dividir(0) == []
 
 

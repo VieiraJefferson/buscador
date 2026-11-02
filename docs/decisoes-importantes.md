@@ -13,7 +13,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | O que é | Buscador e alerta pessoal de vagas tech na UE. Gera o email de candidatura; o Jefferson envia manualmente. | ADR-0001 |
 | LinkedIn | **Não usa.** Muitas agências e vagas irreais, e os termos proíbem robôs. | ADR-0001 |
 | Brasil | **Fora.** Só vagas na Europa. | ADR-0001 |
-| Países (ordem) | 1. Espanha · 2. Holanda · 3. Portugal · 4. resto da UE. **Alemanha fora desde 2026-11-02** (`excluir_paises`; Bundesagentur desligada). | ADR-0001, diário de 2026-11-02 |
+| Países (ordem) | 1. Espanha · 2. Portugal · 3. Holanda · 4. resto da UE (TheirStack: 25/15/10 créditos por semana). **Alemanha fora desde 2026-11-02** (`excluir_paises`; Bundesagentur desligada). | ADR-0001, diário de 2026-11-02 |
 | Regime | Remoto ou híbrido em todos. Presencial excluído. | ADR-0001 |
 | Senioridade | **Mid e senior.** Júnior, estágio, lead, staff, principal, architect e gestão ficam fora. O CV usa o título neutro "Full-Stack Software Engineer & Architect", sem "Senior", para não perder vagas mid. | Diário de 2026-10-13 |
 | Idioma | Exclui vagas que exigem alemão ou holandês fluente. O Jefferson fala PT, EN e ES. | ADR-0001 |
