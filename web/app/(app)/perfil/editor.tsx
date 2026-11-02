@@ -3,13 +3,15 @@
 import { Plus, Save, Trash2 } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { BarraAcoes } from '@/components/app/barra-acoes';
+import { Campo } from '@/components/app/campo';
+import { CampoSelect, opcoesDe } from '@/components/app/campo-select';
+import { Magnetico } from '@/components/app/movimento/magnetico';
+import { Secao } from '@/components/app/secao';
 import { Tags } from '@/components/app/tags';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input, Textarea } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { salvarPerfil } from './actions';
 
@@ -19,6 +21,16 @@ type Prioridade = { ordem: number; paises: string[]; regimes: string[] };
 
 const NIVEIS = ['nativo', 'fluente', 'avancado', 'intermediario', 'basico'];
 const REGIMES = ['remoto', 'hibrido', 'presencial'];
+const ROTULOS = {
+  nome: 'Nome',
+  cargo: 'Cargo',
+  portfolio: 'Portfólio',
+  github: 'GitHub',
+  linkedin: 'LinkedIn',
+  empresa: 'Empresa',
+  periodo: 'Período',
+  local: 'Local',
+} as const;
 
 const obj = (v: unknown) => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
 const lista = (v: unknown) => (Array.isArray(v) ? v.map(String) : []);
@@ -49,8 +61,14 @@ export function EditorPerfil({ inicial }: { inicial: Perfil }) {
       }
     });
 
+  const mudarPrioridade = (i: number, parcial: Partial<Prioridade>) => {
+    const n = [...prioridades];
+    n[i] = { ...prioridades[i]!, ...parcial };
+    definir('localidade', { ...localidade, prioridades: n });
+  };
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-20 md:pb-16">
       <Tabs defaultValue="identidade">
         <TabsList>
           <TabsTrigger value="identidade">Identidade</TabsTrigger>
@@ -60,38 +78,37 @@ export function EditorPerfil({ inicial }: { inicial: Perfil }) {
         </TabsList>
 
         <TabsContent value="identidade" className="mt-4 grid gap-4 md:grid-cols-2">
-          <Card className="flex flex-col gap-3">
-            <CardTitle>Identidade</CardTitle>
+          <Secao titulo="Identidade" descricao="Telefone e morada não ficam aqui: nunca vão para os prompts.">
             {(['nome', 'cargo'] as const).map((c) => (
-              <div key={c} className="flex flex-col gap-1.5">
-                <Label className="capitalize">{c}</Label>
-                <Input value={String(candidato[c] ?? '')} onChange={(e) => definir('candidato', { ...candidato, [c]: e.target.value })} />
-              </div>
+              <Campo key={c} rotulo={ROTULOS[c]} htmlFor={`perfil-${c}`}>
+                <Input id={`perfil-${c}`} value={String(candidato[c] ?? '')} onChange={(e) => definir('candidato', { ...candidato, [c]: e.target.value })} />
+              </Campo>
             ))}
             {(['portfolio', 'github', 'linkedin'] as const).map((c) => (
-              <div key={c} className="flex flex-col gap-1.5">
-                <Label className="capitalize">{c}</Label>
+              <Campo key={c} rotulo={ROTULOS[c]} htmlFor={`perfil-${c}`}>
                 <Input
+                  id={`perfil-${c}`}
                   type="url"
                   value={String(links[c] ?? '')}
                   onChange={(e) => definir('candidato', { ...candidato, links: { ...links, [c]: e.target.value } })}
                 />
-              </div>
+              </Campo>
             ))}
-            <CardDescription>Telefone e morada não ficam aqui: nunca vão para os prompts.</CardDescription>
-          </Card>
+          </Secao>
 
-          <Card className="flex flex-col gap-3">
-            <CardTitle>Idiomas</CardTitle>
+          <Secao titulo="Idiomas">
             {Object.entries(idiomas)
               .filter(([k]) => k !== 'exigencias_excluidas')
               .map(([nome, nivel]) => (
                 <div key={nome} className="flex items-center gap-2">
-                  <Input value={nome} readOnly className="flex-1 capitalize" />
-                  <Select value={String(nivel)} onValueChange={(v) => definir('idiomas', { ...idiomas, [nome]: v })}>
-                    <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-                    <SelectContent>{NIVEIS.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <span className="flex-1 font-medium capitalize">{nome}</span>
+                  <CampoSelect
+                    rotulo={`Nível de ${nome}`}
+                    valor={String(nivel)}
+                    aoMudar={(v) => definir('idiomas', { ...idiomas, [nome]: v })}
+                    opcoes={opcoesDe(NIVEIS)}
+                    className="w-40"
+                  />
                   <Button
                     size="icon"
                     variant="ghost"
@@ -106,38 +123,36 @@ export function EditorPerfil({ inicial }: { inicial: Perfil }) {
                 </div>
               ))}
             <NovoIdioma aoAdicionar={(nome) => definir('idiomas', { ...idiomas, [nome]: 'intermediario' })} />
-            <Label className="mt-2">Excluir vagas que exigem fluência em</Label>
-            <Tags
-              valor={lista(idiomas.exigencias_excluidas)}
-              aoMudar={(v) => definir('idiomas', { ...idiomas, exigencias_excluidas: v })}
-              placeholder="alemao, holandes…"
-            />
-          </Card>
+            <Campo rotulo="Excluir vagas que exigem fluência em">
+              <Tags
+                valor={lista(idiomas.exigencias_excluidas)}
+                aoMudar={(v) => definir('idiomas', { ...idiomas, exigencias_excluidas: v })}
+                placeholder="alemao, holandes…"
+              />
+            </Campo>
+          </Secao>
         </TabsContent>
 
         <TabsContent value="vagas" className="mt-4 grid gap-4 md:grid-cols-2">
-          <Card className="flex flex-col gap-3">
-            <CardTitle>Títulos e níveis</CardTitle>
-            <Label>Títulos que procuro</Label>
-            <Tags valor={lista(p.titulos_alvo)} aoMudar={(v) => definir('titulos_alvo', v)} />
-            <Label>Níveis incluídos</Label>
-            <Tags valor={lista(senioridade.incluir)} aoMudar={(v) => definir('senioridade', { ...senioridade, incluir: v })} />
-            <Label>Níveis excluídos</Label>
-            <Tags valor={lista(senioridade.excluir)} aoMudar={(v) => definir('senioridade', { ...senioridade, excluir: v })} />
-          </Card>
+          <Secao titulo="Títulos e níveis">
+            <Campo rotulo="Títulos que procuro">
+              <Tags valor={lista(p.titulos_alvo)} aoMudar={(v) => definir('titulos_alvo', v)} />
+            </Campo>
+            <Campo rotulo="Níveis incluídos">
+              <Tags valor={lista(senioridade.incluir)} aoMudar={(v) => definir('senioridade', { ...senioridade, incluir: v })} />
+            </Campo>
+            <Campo rotulo="Níveis excluídos">
+              <Tags valor={lista(senioridade.excluir)} aoMudar={(v) => definir('senioridade', { ...senioridade, excluir: v })} />
+            </Campo>
+          </Secao>
 
-          <Card className="flex flex-col gap-3">
-            <CardTitle>Países e regime, por prioridade</CardTitle>
+          <Secao titulo="Países e regime, por prioridade">
             {prioridades.map((pr, i) => (
               <div key={i} className="rounded-lg bg-soft p-3">
                 <p className="eyebrow mb-2">Prioridade {pr.ordem}</p>
                 <Tags
                   valor={pr.paises}
-                  aoMudar={(v) => {
-                    const n = [...prioridades];
-                    n[i] = { ...pr, paises: v.map((x) => x.toUpperCase()) };
-                    definir('localidade', { ...localidade, prioridades: n });
-                  }}
+                  aoMudar={(v) => mudarPrioridade(i, { paises: v.map((x) => x.toUpperCase()) })}
                   placeholder="ES, NL, DE, PT ou UE_RESTANTE"
                 />
                 <div className="mt-2 flex gap-4">
@@ -145,11 +160,7 @@ export function EditorPerfil({ inicial }: { inicial: Perfil }) {
                     <label key={r} className="flex items-center gap-2 text-sm">
                       <Checkbox
                         checked={pr.regimes.includes(r)}
-                        onCheckedChange={(c) => {
-                          const n = [...prioridades];
-                          n[i] = { ...pr, regimes: c ? [...pr.regimes, r] : pr.regimes.filter((x) => x !== r) };
-                          definir('localidade', { ...localidade, prioridades: n });
-                        }}
+                        onCheckedChange={(c) => mudarPrioridade(i, { regimes: c ? [...pr.regimes, r] : pr.regimes.filter((x) => x !== r) })}
                       />
                       {r}
                     </label>
@@ -157,24 +168,28 @@ export function EditorPerfil({ inicial }: { inicial: Perfil }) {
                 </div>
               </div>
             ))}
-            <Label>Países excluídos</Label>
-            <Tags
-              valor={lista(localidade.excluir_paises)}
-              aoMudar={(v) => definir('localidade', { ...localidade, excluir_paises: v.map((x) => x.toUpperCase()) })}
-            />
-          </Card>
+            <Campo rotulo="Países excluídos">
+              <Tags
+                valor={lista(localidade.excluir_paises)}
+                aoMudar={(v) => definir('localidade', { ...localidade, excluir_paises: v.map((x) => x.toUpperCase()) })}
+              />
+            </Campo>
+          </Secao>
         </TabsContent>
 
         <TabsContent value="competencias" className="mt-4 grid gap-4 md:grid-cols-2">
           {Object.entries(competencias).map(([area, itens]) => (
-            <Card key={area} className="flex flex-col gap-2">
-              <CardTitle className="capitalize">{area.replaceAll('_', ' ')}</CardTitle>
+            <Secao key={area} titulo={area.replaceAll('_', ' ')} className="[&_h3]:capitalize">
               <Tags valor={lista(itens)} aoMudar={(v) => definir('competencias', { ...competencias, [area]: v })} />
-            </Card>
+            </Secao>
           ))}
         </TabsContent>
 
         <TabsContent value="experiencia" className="mt-4 flex flex-col gap-4">
+          <Button variant="outline" onClick={() => definir('experiencia', [{ cargo: '', empresa: '', periodo: '', destaques: [] }, ...experiencia])}>
+            <Plus />
+            Adicionar experiência
+          </Button>
           {experiencia.map((e, i) => {
             const mudar = (campo: keyof Experiencia, valor: unknown) => {
               const n = [...experiencia];
@@ -182,49 +197,54 @@ export function EditorPerfil({ inicial }: { inicial: Perfil }) {
               definir('experiencia', n);
             };
             return (
-              <Card key={i} className="grid gap-3 md:grid-cols-2">
-                {(['cargo', 'empresa', 'periodo', 'local'] as const).map((c) => (
-                  <div key={c} className="flex flex-col gap-1.5">
-                    <Label className="capitalize">{c}</Label>
-                    <Input value={String(e[c] ?? '')} onChange={(ev) => mudar(c, ev.target.value)} />
-                  </div>
-                ))}
-                <div className="flex flex-col gap-1.5 md:col-span-2">
-                  <Label>Destaques (um por linha)</Label>
-                  <Textarea value={linhas(e.destaques)} onChange={(ev) => mudar('destaques', deLinhas(ev.target.value))} />
+              <Secao
+                key={i}
+                titulo={e.cargo || 'Nova experiência'}
+                descricao={e.empresa}
+                acao={
+                  <Button size="icon" variant="ghost" aria-label="Remover experiência" onClick={() => definir('experiencia', experiencia.filter((_, j) => j !== i))}>
+                    <Trash2 />
+                  </Button>
+                }
+              >
+                <div className="grid gap-3 md:grid-cols-2">
+                  {(['cargo', 'empresa', 'periodo', 'local'] as const).map((c) => (
+                    <Campo key={c} rotulo={ROTULOS[c]} htmlFor={`exp-${i}-${c}`}>
+                      <Input id={`exp-${i}-${c}`} value={String(e[c] ?? '')} onChange={(ev) => mudar(c, ev.target.value)} />
+                    </Campo>
+                  ))}
+                  <Campo rotulo="Destaques (um por linha)" htmlFor={`exp-${i}-destaques`} className="md:col-span-2">
+                    <Textarea id={`exp-${i}-destaques`} value={linhas(e.destaques)} onChange={(ev) => mudar('destaques', deLinhas(ev.target.value))} data-lenis-prevent />
+                  </Campo>
                 </div>
-                <Button
-                  variant="ghost"
-                  className="justify-self-start"
-                  onClick={() => definir('experiencia', experiencia.filter((_, j) => j !== i))}
-                >
-                  <Trash2 />
-                  Remover experiência
-                </Button>
-              </Card>
+              </Secao>
             );
           })}
-          <Button variant="outline" onClick={() => definir('experiencia', [{ cargo: '', empresa: '', periodo: '', destaques: [] }, ...experiencia])}>
-            <Plus />
-            Adicionar experiência
-          </Button>
-          <Card className="flex flex-col gap-2">
-            <CardTitle>Formação e cursos (um por linha)</CardTitle>
-            <Textarea value={linhas(p.formacao)} onChange={(e) => definir('formacao', deLinhas(e.target.value))} />
-            <Textarea
-              value={linhas(p.formacao_complementar)}
-              onChange={(e) => definir('formacao_complementar', deLinhas(e.target.value))}
-            />
-          </Card>
+          <Secao titulo="Formação e cursos" descricao="Um por linha.">
+            <Campo rotulo="Formação" htmlFor="formacao">
+              <Textarea id="formacao" value={linhas(p.formacao)} onChange={(e) => definir('formacao', deLinhas(e.target.value))} data-lenis-prevent />
+            </Campo>
+            <Campo rotulo="Cursos" htmlFor="formacao-complementar">
+              <Textarea
+                id="formacao-complementar"
+                value={linhas(p.formacao_complementar)}
+                onChange={(e) => definir('formacao_complementar', deLinhas(e.target.value))}
+                data-lenis-prevent
+              />
+            </Campo>
+          </Secao>
         </TabsContent>
       </Tabs>
 
-      <div className="sticky bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] z-30 flex justify-end md:bottom-6">
-        <Button size="lg" onClick={salvar} disabled={pendente} className="shadow-card">
-          <Save />
-          {pendente ? 'Salvando…' : 'Salvar perfil'}
-        </Button>
-      </div>
+      <BarraAcoes>
+        <span className="truncate text-sm text-muted-foreground">A próxima varredura usa estes dados.</span>
+        <Magnetico>
+          <Button onClick={salvar} disabled={pendente}>
+            <Save />
+            {pendente ? 'Salvando…' : 'Salvar perfil'}
+          </Button>
+        </Magnetico>
+      </BarraAcoes>
     </div>
   );
 }

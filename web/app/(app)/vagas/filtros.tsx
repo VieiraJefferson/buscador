@@ -1,35 +1,34 @@
 'use client';
 
 import { SlidersHorizontal } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Campo } from '@/components/app/campo';
+import { CampoSelect, type Opcao } from '@/components/app/campo-select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { type FiltrosVagas, rotas } from '@/lib/rotas';
+import { ESTADOS, PRIORIDADES } from '@/lib/tipos';
 
 const CHAVE = 'buscador:filtros-vagas';
 const TODOS = 'todos';
 
-const CAMPOS = [
+type Filtro = { nome: keyof FiltrosVagas; rotulo: string; padrao?: string; opcoes: Opcao[] };
+
+const FILTROS: Filtro[] = [
   {
     nome: 'prioridade',
     rotulo: 'País',
-    opcoes: [
-      ['1', 'Espanha'],
-      ['2', 'Holanda e Alemanha'],
-      ['3', 'Portugal'],
-      ['4', 'Resto da UE'],
-    ],
+    opcoes: Object.entries(PRIORIDADES).map(([valor, rotulo]) => ({ valor, rotulo })),
   },
   {
     nome: 'regime',
     rotulo: 'Regime',
     opcoes: [
-      ['remoto', 'Remoto'],
-      ['hibrido', 'Híbrido'],
-      ['desconhecido', 'A confirmar'],
+      { valor: 'remoto', rotulo: 'Remoto' },
+      { valor: 'hibrido', rotulo: 'Híbrido' },
+      { valor: 'desconhecido', rotulo: 'A confirmar' },
     ],
   },
   {
@@ -37,37 +36,34 @@ const CAMPOS = [
     rotulo: 'Nota mínima',
     padrao: '3 ou mais',
     opcoes: [
-      ['5', '5'],
-      ['4', '4 ou mais'],
-      ['todas', 'Todas, inclusive sem nota'],
-      ['sem', 'Ainda sem nota'],
+      { valor: '5', rotulo: '5' },
+      { valor: '4', rotulo: '4 ou mais' },
+      { valor: 'todas', rotulo: 'Todas, inclusive sem nota' },
+      { valor: 'sem', rotulo: 'Ainda sem nota' },
     ],
   },
   {
     nome: 'estado',
     rotulo: 'Estado',
     opcoes: [
-      ['novas', 'Novas hoje'],
-      ['a_enviar', 'A enviar'],
-      ['enviada', 'Enviadas'],
-      ['respondida', 'Respondidas'],
-      ['entrevista', 'Entrevista'],
-      ['recusada', 'Recusadas'],
+      { valor: 'novas', rotulo: 'Novas hoje' },
+      ...ESTADOS.filter((e) => e.valor !== 'sem_resposta').map((e) => ({ valor: e.valor, rotulo: e.rotulo })),
     ],
   },
   {
     nome: 'tipo',
     rotulo: 'Empresa',
     opcoes: [
-      ['direto', 'Empregador direto'],
-      ['consultoria', 'Consultoria'],
+      { valor: 'direto', rotulo: 'Empregador direto' },
+      { valor: 'consultoria', rotulo: 'Consultoria' },
     ],
   },
-] as const;
+];
+
+const paraFiltros = (p: URLSearchParams) => Object.fromEntries(p) as FiltrosVagas;
 
 export function Filtros() {
   const router = useRouter();
-  const caminho = usePathname();
   const busca = useSearchParams();
   const [q, setQ] = useState(busca.get('q') ?? '');
 
@@ -81,18 +77,18 @@ export function Filtros() {
     }
     try {
       const salvo = localStorage.getItem(CHAVE);
-      if (salvo) router.replace(`${caminho}?${salvo}`);
+      if (salvo) router.replace(rotas.vagas(paraFiltros(new URLSearchParams(salvo))));
     } catch {}
-  }, [busca, caminho, router]);
+  }, [busca, router]);
 
   function definir(nome: string, valor: string) {
     const p = new URLSearchParams(busca.toString());
     if (!valor || valor === TODOS) p.delete(nome);
     else p.set(nome, valor);
-    router.replace(`${caminho}?${p.toString()}`);
+    router.replace(rotas.vagas(paraFiltros(p)));
   }
 
-  const ativos = CAMPOS.filter((c) => busca.get(c.nome)).length;
+  const ativos = FILTROS.filter((f) => busca.get(f.nome)).length;
 
   return (
     <div className="flex w-full gap-2 md:w-auto">
@@ -103,7 +99,7 @@ export function Filtros() {
           definir('q', q.trim());
         }}
       >
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar no título…" />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar no título…" aria-label="Buscar no título" />
       </form>
       <Sheet>
         <SheetTrigger asChild>
@@ -114,26 +110,18 @@ export function Filtros() {
         </SheetTrigger>
         <SheetContent title="Filtros">
           <div className="flex flex-col gap-4">
-            {CAMPOS.map((c) => (
-              <div key={c.nome} className="flex flex-col gap-1.5">
-                <Label>{c.rotulo}</Label>
-                <Select value={busca.get(c.nome) ?? TODOS} onValueChange={(v) => definir(c.nome, v)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={TODOS}>{'padrao' in c ? c.padrao : 'Todos'}</SelectItem>
-                    {c.opcoes.map(([valor, rotulo]) => (
-                      <SelectItem key={valor} value={valor}>
-                        {rotulo}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {FILTROS.map((f) => (
+              <Campo key={f.nome} rotulo={f.rotulo}>
+                <CampoSelect
+                  rotulo={f.rotulo}
+                  valor={busca.get(f.nome) ?? TODOS}
+                  aoMudar={(v) => definir(f.nome, v)}
+                  opcoes={[{ valor: TODOS, rotulo: f.padrao ?? 'Todos' }, ...f.opcoes]}
+                />
+              </Campo>
             ))}
             <div className="mt-2 flex gap-2">
-              <Button variant="soft" className="flex-1" onClick={() => router.replace(caminho + '?estado=a_enviar')}>
+              <Button variant="soft" className="flex-1" onClick={() => router.replace(rotas.vagas({ estado: 'a_enviar' }))}>
                 Limpar
               </Button>
               <SheetClose asChild>

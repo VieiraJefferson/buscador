@@ -3,8 +3,10 @@
 import { CheckCircle2, CircleDashed, ExternalLink, Loader2, XCircle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { BotoesColetor } from '@/components/app/botoes-coletor';
+import { ItemLista, ListaItens } from '@/components/app/item-lista';
+import { Secao } from '@/components/app/secao';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardDescription, CardTitle } from '@/components/ui/card';
+import { dataCurta } from '@/lib/datas';
 
 type Execucao = {
   id: number;
@@ -15,9 +17,6 @@ type Execucao = {
   atualizadaEm: string;
   url: string;
 };
-const fmt = (iso: string) =>
-  new Date(iso).toLocaleString('pt-BR', { timeZone: 'Europe/Lisbon', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-
 function Estado({ e }: { e: Execucao }) {
   if (e.estado !== 'completed')
     return (
@@ -62,55 +61,51 @@ export function Coletor({
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Card className="flex flex-col gap-4 lg:col-span-2">
-        <div>
-          <CardTitle>Executar agora</CardTitle>
-          <CardDescription>
-            A varredura lê as vagas, a IA dá a nota e escreve os emails, e o relatório chega no seu email. A
-            descoberta atualiza a lista de empresas (roda sozinha às segundas).
-          </CardDescription>
-        </div>
+      <Secao
+        titulo="Executar agora"
+        descricao="A varredura lê as vagas, a IA dá a nota e escreve os emails, e o relatório chega no seu email. Roda sozinha na segunda e na quinta; a descoberta atualiza a lista de empresas às segundas."
+        className="lg:col-span-2"
+      >
         <BotoesColetor aoDisparar={() => setTimeout(atualizar, 3000)} />
-      </Card>
+      </Secao>
 
-      <Card>
-        <CardTitle>Execuções no GitHub</CardTitle>
-        <ul className="mt-3 flex flex-col gap-2">
-          {carregando && <li className="text-sm text-muted-foreground">Carregando…</li>}
-          {!carregando && execucoes.length === 0 && (
-            <li className="text-sm text-muted-foreground">Sem dados (verifique o GITHUB_TOKEN no Vercel).</li>
-          )}
-          {execucoes.map((e) => (
-            <li key={e.id} className="flex items-center justify-between gap-2 rounded-md bg-soft px-3 py-2 text-sm">
-              <div>
+      <Secao titulo="Execuções no GitHub">
+        {carregando ? (
+          <p className="text-sm text-muted-foreground">Carregando…</p>
+        ) : (
+          <ListaItens vazio="Sem dados (verifique o GITHUB_TOKEN no Vercel).">
+            {execucoes.map((e) => (
+              <ItemLista
+                key={e.id}
+                acoes={
+                  <>
+                    <Estado e={e} />
+                    <a href={e.url} target="_blank" rel="noopener noreferrer" aria-label="Abrir no GitHub">
+                      <ExternalLink className="size-4 text-muted-foreground" />
+                    </a>
+                  </>
+                }
+              >
                 <p className="font-medium">{e.nome.replace('coletor-', '')}</p>
-                <p className="text-xs text-muted-foreground">{fmt(e.criadaEm)}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Estado e={e} />
-                <a href={e.url} target="_blank" rel="noopener noreferrer" aria-label="Abrir no GitHub">
-                  <ExternalLink className="size-4 text-muted-foreground" />
-                </a>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </Card>
+                <p className="text-xs text-muted-foreground">{dataCurta(e.criadaEm)}</p>
+              </ItemLista>
+            ))}
+          </ListaItens>
+        )}
+      </Secao>
 
-      <Card>
-        <CardTitle>Por fonte</CardTitle>
-        <ul className="mt-3 flex flex-col gap-1.5 text-sm">
-          {historico.length === 0 && <li className="text-muted-foreground">Ainda sem registros.</li>}
+      <Secao titulo="Por fonte">
+        <ListaItens vazio="Ainda sem registros.">
           {historico.map((h) => (
-            <li key={h.id} className="flex justify-between gap-2">
-              <span>{h.fonte}</span>
-              <span className="text-muted-foreground">
-                {h.vagas_lidas} lidas · {h.vagas_novas} novas · {fmt(h.iniciada_em)}
-              </span>
-            </li>
+            <ItemLista key={h.id} acoes={<span className="text-xs text-muted-foreground">{dataCurta(h.iniciada_em)}</span>}>
+              <p className="font-medium">{h.fonte}</p>
+              <p className="text-xs text-muted-foreground">
+                {h.vagas_lidas} lidas · {h.vagas_novas} novas
+              </p>
+            </ItemLista>
           ))}
-        </ul>
-      </Card>
+        </ListaItens>
+      </Secao>
     </div>
   );
 }

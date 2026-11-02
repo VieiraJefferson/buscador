@@ -3,12 +3,14 @@
 import { Ban, CalendarCheck, ClipboardPaste, Copy, Loader2, Save, Sparkles } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
+import { Campo } from '@/components/app/campo';
+import { CampoSelect } from '@/components/app/campo-select';
+import { Magnetico } from '@/components/app/movimento/magnetico';
+import { Revelar } from '@/components/app/movimento/revelar';
+import { Secao } from '@/components/app/secao';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { Input, Textarea } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { aplicarRecusa, criarEntrevista } from '../agenda/actions';
 import { guardarResposta } from '../vagas/actions';
@@ -105,121 +107,117 @@ export function Assistente({ opcoes, vagaInicial }: { opcoes: Opcao[]; vagaInici
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Card className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1.5">
-          <Label>Vaga relacionada</Label>
-          <Select value={vagaId} onValueChange={setVagaId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Escolha a candidatura" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NENHUMA}>Não sei / nenhuma</SelectItem>
-              {opcoes.map((o) => (
-                <SelectItem key={o.vagaId} value={o.vagaId}>
-                  {o.rotulo}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center justify-between">
-          <Label htmlFor="email-empresa">Email da empresa</Label>
-          <Button size="sm" variant="soft" onClick={colar}>
-            <ClipboardPaste />
-            Colar
+      <Secao titulo="Email da empresa" descricao="O email colado não é guardado.">
+        <Campo rotulo="Vaga relacionada">
+          <CampoSelect
+            rotulo="Vaga relacionada"
+            valor={vagaId}
+            aoMudar={setVagaId}
+            placeholder="Escolha a candidatura"
+            opcoes={[{ valor: NENHUMA, rotulo: 'Não sei / nenhuma' }, ...opcoes.map((o) => ({ valor: o.vagaId, rotulo: o.rotulo }))]}
+          />
+        </Campo>
+        <Campo
+          rotulo="Texto recebido"
+          htmlFor="email-empresa"
+          acao={
+            <Button size="sm" variant="soft" onClick={colar}>
+              <ClipboardPaste />
+              Colar
+            </Button>
+          }
+        >
+          <Textarea
+            id="email-empresa"
+            suppressHydrationWarning
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            placeholder="Cole aqui o email que a empresa enviou."
+            className="min-h-56"
+            data-lenis-prevent
+          />
+        </Campo>
+        <Magnetico className="flex">
+          <Button size="lg" className="w-full" onClick={analisar} disabled={analisando || texto.trim().length < 20}>
+            {analisando ? <Loader2 className="animate-spin" /> : <Sparkles />}
+            {analisando ? 'Analisando…' : 'Analisar e responder'}
           </Button>
-        </div>
-        <Textarea
-          id="email-empresa"
-          suppressHydrationWarning
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          placeholder="Cole aqui o email que a empresa enviou."
-          className="min-h-56"
-        />
-        <p className="text-xs text-muted-foreground">O email colado não é guardado.</p>
-        <Button size="lg" onClick={analisar} disabled={analisando || texto.trim().length < 20}>
-          {analisando ? <Loader2 className="animate-spin" /> : <Sparkles />}
-          {analisando ? 'Analisando…' : 'Analisar e responder'}
-        </Button>
-      </Card>
+        </Magnetico>
+      </Secao>
 
       {resultado && tipo && (
-        <Card className="flex flex-col gap-4">
-          <div>
-            <Badge variant={tipo.variante}>{tipo.rotulo}</Badge>
-            <CardDescription className="mt-2">{resultado.classificacao.resumo}</CardDescription>
-          </div>
-
-          {resultado.classificacao.tipo === 'recusa' && (
-            <div className="rounded-lg bg-soft p-4">
-              <p className="text-sm">
-                Marcar a candidatura como <b>recusada</b> e <b>bloquear a empresa</b> para ela não voltar nas buscas?
-              </p>
-              <Button
-                className="mt-3"
-                disabled={!vaga || pendente}
-                onClick={() => vaga && executar(() => aplicarRecusa(vaga.vagaId), 'Recusa registrada e empresa bloqueada')}
-              >
-                <Ban />
-                Aplicar
-              </Button>
-              {!vaga && <p className="mt-2 text-xs text-muted-foreground">Escolha a vaga relacionada primeiro.</p>}
-            </div>
-          )}
-
-          {resultado.classificacao.tipo === 'convite_entrevista' && (
-            <div className="rounded-lg bg-soft p-4">
-              <CardTitle className="text-base">Horários livres da sua agenda</CardTitle>
-              {resultado.horarios.length === 0 ? (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Nenhum horário livre nos próximos 14 dias. Cadastre a sua disponibilidade na Agenda.
+        <Revelar>
+          <Secao titulo="Análise" descricao={resultado.classificacao.resumo} acao={<Badge variant={tipo.variante}>{tipo.rotulo}</Badge>}>
+            {resultado.classificacao.tipo === 'recusa' && (
+              <div className="rounded-lg bg-soft p-4">
+                <p className="text-sm">
+                  Marcar a candidatura como <b>recusada</b> e <b>bloquear a empresa</b> para ela não voltar nas buscas?
                 </p>
-              ) : (
-                <div className="mt-3 flex flex-col gap-2">
-                  {resultado.horarios.map((h) => (
-                    <button
-                      key={h.inicio}
-                      type="button"
-                      onClick={() => setHorario(h)}
-                      className={cn(
-                        'rounded-md border bg-background px-3 py-2 text-left text-sm',
-                        horario?.inicio === h.inicio && 'border-sea ring-2 ring-sea/30',
-                      )}
-                    >
-                      {h.rotulo}
-                    </button>
-                  ))}
-                  <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder="Link da chamada (opcional)" />
-                  <Button
-                    variant="sea"
-                    disabled={!horario || pendente}
-                    onClick={() =>
-                      horario &&
-                      executar(
-                        () =>
-                          criarEntrevista({
-                            vagaId: vaga?.vagaId,
-                            titulo: `Entrevista · ${vaga?.empresa || resultado.classificacao.empresa || 'empresa'}`,
-                            inicio: horario.inicio,
-                            fim: horario.fim,
-                            link,
-                          }),
-                        'Entrevista marcada na agenda',
-                      )
-                    }
-                  >
-                    <CalendarCheck />
-                    Confirmar quando a empresa aceitar
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
+                <Button
+                  className="mt-3"
+                  disabled={!vaga || pendente}
+                  onClick={() => vaga && executar(() => aplicarRecusa(vaga.vagaId), 'Recusa registrada e empresa bloqueada')}
+                >
+                  <Ban />
+                  Aplicar
+                </Button>
+                {!vaga && <p className="mt-2 text-xs text-muted-foreground">Escolha a vaga relacionada primeiro.</p>}
+              </div>
+            )}
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="resposta">Resposta sugerida (edite à vontade)</Label>
-            <Textarea id="resposta" value={resposta} onChange={(e) => setResposta(e.target.value)} className="min-h-56" />
+            {resultado.classificacao.tipo === 'convite_entrevista' && (
+              <div className="flex flex-col gap-2 rounded-lg bg-soft p-4">
+                <p className="font-display font-bold">Horários livres da sua agenda</p>
+                {resultado.horarios.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhum horário livre nos próximos 14 dias. Cadastre a sua disponibilidade na Agenda.
+                  </p>
+                ) : (
+                  <>
+                    {resultado.horarios.map((h) => (
+                      <button
+                        key={h.inicio}
+                        type="button"
+                        onClick={() => setHorario(h)}
+                        aria-pressed={horario?.inicio === h.inicio}
+                        className={cn(
+                          'rounded-md border bg-background px-3 py-2 text-left text-sm transition duration-200',
+                          horario?.inicio === h.inicio && 'border-sea ring-2 ring-sea/30',
+                        )}
+                      >
+                        {h.rotulo}
+                      </button>
+                    ))}
+                    <Input value={link} onChange={(e) => setLink(e.target.value)} placeholder="Link da chamada (opcional)" aria-label="Link da chamada" />
+                    <Button
+                      variant="sea"
+                      disabled={!horario || pendente}
+                      onClick={() =>
+                        horario &&
+                        executar(
+                          () =>
+                            criarEntrevista({
+                              vagaId: vaga?.vagaId,
+                              titulo: `Entrevista · ${vaga?.empresa || resultado.classificacao.empresa || 'empresa'}`,
+                              inicio: horario.inicio,
+                              fim: horario.fim,
+                              link,
+                            }),
+                          'Entrevista marcada na agenda',
+                        )
+                      }
+                    >
+                      <CalendarCheck />
+                      Confirmar quando a empresa aceitar
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
+
+            <Campo rotulo="Resposta sugerida (edite à vontade)" htmlFor="resposta">
+              <Textarea id="resposta" value={resposta} onChange={(e) => setResposta(e.target.value)} className="min-h-56" data-lenis-prevent />
+            </Campo>
             <div className="flex flex-wrap gap-2">
               <Button
                 onClick={async () => {
@@ -240,8 +238,8 @@ export function Assistente({ opcoes, vagaInicial }: { opcoes: Opcao[]; vagaInici
                 Guardar na candidatura
               </Button>
             </div>
-          </div>
-        </Card>
+          </Secao>
+        </Revelar>
       )}
     </div>
   );
