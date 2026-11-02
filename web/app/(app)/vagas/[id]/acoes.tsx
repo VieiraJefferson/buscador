@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import { CampoSelect } from '@/components/app/campo-select';
+import { CaixaEnviada } from '@/components/app/vaga/caixa-enviada';
 import { Magnetico } from '@/components/app/movimento/magnetico';
 import { Secao } from '@/components/app/secao';
 import { Button } from '@/components/ui/button';
+import { ehCelular, linkGmail, linkMailto } from '@/lib/email-link';
 import { rotas } from '@/lib/rotas';
 import { ESTADOS, type EstadoCandidatura } from '@/lib/tipos';
 import { bloquearEmpresa, descartarVagas, marcarEstado } from '../actions';
@@ -19,9 +21,6 @@ type Props = {
   estado: EstadoCandidatura;
   email: { assunto: string; corpo: string; para: string | null; quem: string | null } | null;
 };
-
-// Links mailto muito longos falham em alguns apps: acima disto, o botão copia o texto.
-const LIMITE_MAILTO = 1800;
 
 export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }: Props) {
   const [pendente, iniciar] = useTransition();
@@ -43,20 +42,29 @@ export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }
     toast.success('Email copiado');
   }
 
-  const mailto = email
-    ? `mailto:${email.para ?? ''}?subject=${encodeURIComponent(email.assunto)}&body=${encodeURIComponent(email.corpo)}`
-    : '';
+  const mudarEstado = (v: EstadoCandidatura, ok: string) => {
+    setEstadoAtual(v);
+    executar(() => marcarEstado([vagaId], v), ok);
+  };
 
   function abrirApp() {
     if (!email) return;
-    if (mailto.length > LIMITE_MAILTO) {
-      void copiar();
-      toast.info('Texto longo: copiado. Cole no seu app de email.');
-      return;
+    // Rede de segurança: o texto também vai para a área de transferência. A cópia começa antes
+    // de abrir o Gmail, enquanto a página ainda tem o foco.
+    navigator.clipboard?.writeText(`${email.assunto}\n\n${email.corpo}`).catch(() => {});
+    if (ehCelular(navigator.userAgent)) {
+      window.location.href = linkMailto(email);
+    } else {
+      // Síncrono, dentro do clique: senão o bloqueador de pop-ups barra a aba nova.
+      window.open(linkGmail(email), '_blank', 'noopener,noreferrer');
     }
-    window.location.href = mailto;
-    // Abrir no app normalmente significa que vai enviar: deixa um atalho para marcar.
-    toast('Enviou?', { action: { label: 'Marcar enviada', onClick: () => executar(() => marcarEstado([vagaId], 'enviada'), 'Marcada como enviada') } });
+    // Abrir normalmente significa que vai enviar: deixa um atalho para marcar.
+    if (estadoAtual === 'a_enviar') {
+      toast('Enviou?', {
+        duration: 15000,
+        action: { label: 'Marcar enviada', onClick: () => mudarEstado('enviada', 'Marcada como enviada') },
+      });
+    }
   }
 
   return (
@@ -79,7 +87,7 @@ export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }
               <Magnetico>
                 <Button onClick={abrirApp} size="lg">
                   <Mail />
-                  Abrir no app de email
+                  Abrir no Gmail
                 </Button>
               </Magnetico>
               <Button onClick={copiar} variant="outline" size="lg">
@@ -92,13 +100,15 @@ export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }
       </Secao>
 
       <Secao titulo="Candidatura">
+        <CaixaEnviada
+          estado={estadoAtual}
+          disabled={pendente}
+          aoMudar={(v) => mudarEstado(v, v === 'enviada' ? 'Marcada como enviada' : 'Voltou para a enviar')}
+        />
         <CampoSelect
           rotulo="Estado da candidatura"
           valor={estadoAtual}
-          aoMudar={(v) => {
-            setEstadoAtual(v as EstadoCandidatura);
-            executar(() => marcarEstado([vagaId], v), 'Estado atualizado');
-          }}
+          aoMudar={(v) => mudarEstado(v as EstadoCandidatura, 'Estado atualizado')}
           opcoes={ESTADOS.map((e) => ({ valor: e.valor, rotulo: e.rotulo }))}
           disabled={pendente}
         />

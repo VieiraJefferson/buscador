@@ -7,13 +7,32 @@ import { BarraAcoes } from '@/components/app/barra-acoes';
 import { EstadoVazio } from '@/components/app/estado-vazio';
 import { LinhaVaga } from '@/components/app/vaga/linha-vaga';
 import { Button } from '@/components/ui/button';
-import type { VagaLista } from '@/lib/tipos';
+import type { EstadoCandidatura, VagaLista } from '@/lib/tipos';
 import { nomePrioridade } from '@/lib/vaga';
 import { descartarVagas, marcarEstado } from './actions';
 
 export function ListaVagas({ vagas }: { vagas: VagaLista[] }) {
   const [selecionadas, setSelecionadas] = useState<Set<string>>(new Set());
   const [pendente, iniciar] = useTransition();
+  // Marcação otimista da caixinha "Enviada": aparece na hora, o servidor confirma depois.
+  const [marcadas, setMarcadas] = useState<Record<string, EstadoCandidatura>>({});
+  const estadoDe = (v: VagaLista): EstadoCandidatura => marcadas[v.id] ?? v.candidaturas[0]?.estado ?? 'a_enviar';
+
+  function marcarEnviada(id: string, novo: 'enviada' | 'a_enviar') {
+    setMarcadas((m) => ({ ...m, [id]: novo }));
+    iniciar(async () => {
+      try {
+        await marcarEstado([id], novo);
+        toast.success(novo === 'enviada' ? 'Marcada como enviada' : 'Voltou para a enviar');
+      } catch {
+        setMarcadas((m) => {
+          const { [id]: _, ...resto } = m;
+          return resto;
+        });
+        toast.error('Não foi possível concluir.');
+      }
+    });
+  }
 
   const alternar = (id: string) =>
     setSelecionadas((s) => {
@@ -56,7 +75,14 @@ export function ListaVagas({ vagas }: { vagas: VagaLista[] }) {
             {(i === 0 || v.prioridade_pais !== vagas[i - 1]?.prioridade_pais) && (
               <p className="eyebrow mt-4 mb-2 first:mt-0">{nomePrioridade(v.prioridade_pais)}</p>
             )}
-            <LinhaVaga vaga={v} selecionada={selecionadas.has(v.id)} aoSelecionar={() => alternar(v.id)} />
+            <LinhaVaga
+              vaga={v}
+              estado={estadoDe(v)}
+              selecionada={selecionadas.has(v.id)}
+              aoSelecionar={() => alternar(v.id)}
+              aoMarcarEnviada={(novo) => marcarEnviada(v.id, novo)}
+              pendente={pendente}
+            />
           </li>
         ))}
       </ul>

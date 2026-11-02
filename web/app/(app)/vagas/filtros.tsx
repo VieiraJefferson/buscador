@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { type FiltrosVagas, rotas } from '@/lib/rotas';
 import { ESTADOS, PRIORIDADES } from '@/lib/tipos';
+import { FASES } from '@/lib/vaga';
 
 const CHAVE = 'buscador:filtros-vagas';
 const TODOS = 'todos';
@@ -47,7 +48,9 @@ const FILTROS: Filtro[] = [
     rotulo: 'Estado',
     opcoes: [
       { valor: 'novas', rotulo: 'Novas hoje' },
-      ...ESTADOS.filter((e) => e.valor !== 'sem_resposta').map((e) => ({ valor: e.valor, rotulo: e.rotulo })),
+      ...FASES.map((f) => ({ valor: f.valor, rotulo: f.rotulo })),
+      // estados soltos dentro dos grupos (o "enviada" já é o "Aguardando resposta")
+      ...ESTADOS.filter((e) => !['a_enviar', 'enviada'].includes(e.valor)).map((e) => ({ valor: e.valor, rotulo: e.rotulo })),
     ],
   },
   {

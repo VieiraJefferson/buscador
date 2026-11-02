@@ -63,6 +63,7 @@ export async function bloquearEmpresa(empresaIdBruto: string, bloquear: boolean)
     if (erroContatos) throw new Error('Empresa bloqueada, mas os contatos não foram apagados');
   }
   revalidatePath('/vagas');
+  revalidatePath('/nao-contatar');
 }
 
 export async function guardarResposta(vagaIdBruto: string, resposta: string) {

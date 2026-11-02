@@ -24,4 +24,5 @@ export const rotas = {
   agenda: '/agenda' as Route,
   perfil: '/perfil' as Route,
   coletor: '/coletor' as Route,
+  naoContatar: '/nao-contatar' as Route,
 } as const;

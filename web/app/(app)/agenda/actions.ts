@@ -82,7 +82,8 @@ export async function criarEntrevista(dados: z.input<typeof NovaEntrevista>) {
   revalidatePath('/');
 }
 
-/** Recusa: candidatura "recusada" e a empresa bloqueada (não volta nas buscas). */
+/** Recusa ou pedido para não receber mais emails (saída RGPD, ADR-0006): candidatura
+ *  "recusada" e a empresa bloqueada (não volta nas buscas, contatos apagados). */
 export async function aplicarRecusa(vagaId: string) {
   const id = z.uuid().parse(vagaId);
   const { supabase, user } = await exigirUsuario();

@@ -44,6 +44,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | Stack do site | Next.js 16.3.8, React 19.3, TypeScript 6.0.3, Tailwind 4.3, shadcn/radix, `motion`, Lenis, visual do portfólio, região `dub1` | ADR-0002, plano do site |
 | Frontend | Componentes reutilizáveis (`components/app/`), mapa único de rotas com `typedRoutes`, `loading.tsx` em cada rota, cache do roteador de 30 s, animações do portfólio (transição, Revelar, Magnético, Grão) | ADR-0004 |
 | Sessão no site | `getClaims()` uma vez por pedido (chave ECC, conferência local, sem rede por clique) e cookie `httpOnly` | ADR-0004 |
+| Envio e acompanhamento | PC: compositor do Gmail web; celular: `mailto:`; texto sempre copiado como reserva. Caixinha "Enviada" em cada vaga e abas: a enviar, aguardando resposta, em andamento, encerradas. Tela "Não contatar" com as empresas bloqueadas. | ADR-0006 |
 
 ## IA
 
@@ -51,7 +52,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 |---|---|---|
 | Classificar agência e pontuar vagas | Claude Haiku 5.5 (`claude-haiku-5-5`) | ADR-0001 |
 | Escrever os emails de candidatura | Claude Sonnet 5.5 (`claude-sonnet-5-5`) | ADR-0001 |
-| Assistente de resposta | Claude Haiku 5.5 classifica (recusa, convite, pedido de informação) e Claude Opus 5.5 (`claude-opus-5-5`) escreve a resposta, com horários livres da agenda no convite | ADR-0001, ADR-0003 |
+| Assistente de resposta | Claude Haiku 5.5 classifica (recusa, convite, pedido de informação, não quer mais emails) e Claude Opus 5.5 (`claude-opus-5-5`) escreve a resposta, com horários livres da agenda no convite | ADR-0001, ADR-0003, ADR-0006 |
 | Fallback em recusa | `fallbacks: "default"` (`server-side-fallback-2026-07-01`) no Sonnet e no Opus | Planos de 2026-10-14 |
 | Orçamento | Teto de **US$ 15 por mês** (estimativa ~US$ 13), garantido por um limite no console da Anthropic. A API é cobrada à parte da assinatura do Claude. | ADR-0001 |
 | Segurança | Conteúdo externo é dado, nunca instrução (OWASP LLM01). Sem ferramentas com efeito externo. Saída validada. | ADR-0001, ADR-0002 |
@@ -62,6 +63,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 - Contatos apagados 12 meses depois (`apagar_apos`).
 - Repositório privado; a base de contatos nunca é publicada.
 - Apollo só depois do filtro e da nota, só emails profissionais verificados, nada vai para o prompt da IA (ADR-0005). Gmail não ligado ao Apollo; extensão do Chrome não usada.
+- Pedido para não receber mais emails: o Assistente reconhece (`nao_contatar`); um toque bloqueia a empresa e ela vai para a tela **Não contatar** (ADR-0006).
 
 ## Forma de trabalhar
 

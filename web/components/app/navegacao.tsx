@@ -1,6 +1,6 @@
 'use client';
 
-import { BriefcaseBusiness, CalendarDays, Home, type LucideIcon, MessageSquareText, Play, UserRound } from 'lucide-react';
+import { Ban, BriefcaseBusiness, CalendarDays, Home, type LucideIcon, MessageSquareText, Play, UserRound } from 'lucide-react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -18,6 +18,8 @@ const ITENS: Item[] = [
   { href: rotas.agenda, rotulo: 'Agenda', icone: CalendarDays },
   { href: rotas.perfil, rotulo: 'Perfil', icone: UserRound },
   { href: rotas.coletor, rotulo: 'Coletor', icone: Play },
+  // No celular fica fora do menu inferior; o acesso é pela aba "Não contatar" em Vagas.
+  { href: rotas.naoContatar, rotulo: 'Não contatar', icone: Ban },
 ];
 
 const ativo = (atual: string, href: string) => (href === '/' ? atual === '/' : atual.startsWith(href));

@@ -1,6 +1,8 @@
 import { Cabecalho } from '@/components/app/cabecalho';
 import { exigirUsuario } from '@/lib/auth';
 import type { VagaLista } from '@/lib/tipos';
+import { estadoBateComFiltro } from '@/lib/vaga';
+import { AbasFase } from './abas-fase';
 import { Filtros } from './filtros';
 import { ListaVagas } from './lista';
 
@@ -49,14 +51,10 @@ export default async function VagasPage({ searchParams }: { searchParams: Promis
     .limit(300);
 
   let vagas = (data ?? []) as unknown as VagaLista[];
-  // Estado da candidatura: filtro aplicado aqui (a relação é opcional)
+  // Estado da candidatura ou grupo das abas: filtro aplicado aqui (a relação é opcional)
   const estado = f.estado;
   if (estado && estado !== 'novas') {
-    vagas = vagas.filter((v) =>
-      estado === 'a_enviar'
-        ? !v.candidaturas.length || v.candidaturas[0]?.estado === 'a_enviar'
-        : v.candidaturas[0]?.estado === estado,
-    );
+    vagas = vagas.filter((v) => estadoBateComFiltro(v.candidaturas[0]?.estado, estado));
   }
 
   return (
@@ -64,6 +62,7 @@ export default async function VagasPage({ searchParams }: { searchParams: Promis
       <Cabecalho eyebrow="Empregadores diretos primeiro" titulo="Vagas">
         <Filtros />
       </Cabecalho>
+      <AbasFase />
       <ListaVagas vagas={vagas} />
     </div>
   );

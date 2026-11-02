@@ -27,6 +27,7 @@ const TIPOS: Record<string, { rotulo: string; variante: 'sea' | 'warning' | 'sof
   recusa: { rotulo: 'Recusa', variante: 'warning' },
   convite_entrevista: { rotulo: 'Convite para entrevista', variante: 'sea' },
   pedido_informacao: { rotulo: 'Pedido de informação', variante: 'soft' },
+  nao_contatar: { rotulo: 'Não quer mais emails', variante: 'warning' },
   outro: { rotulo: 'Outro', variante: 'soft' },
 };
 const NENHUMA = 'nenhuma';
@@ -148,15 +149,32 @@ export function Assistente({ opcoes, vagaInicial }: { opcoes: Opcao[]; vagaInici
       {resultado && tipo && (
         <Revelar>
           <Secao titulo="Análise" descricao={resultado.classificacao.resumo} acao={<Badge variant={tipo.variante}>{tipo.rotulo}</Badge>}>
-            {resultado.classificacao.tipo === 'recusa' && (
+            {(resultado.classificacao.tipo === 'recusa' || resultado.classificacao.tipo === 'nao_contatar') && (
               <div className="rounded-lg bg-soft p-4">
                 <p className="text-sm">
-                  Marcar a candidatura como <b>recusada</b> e <b>bloquear a empresa</b> para ela não voltar nas buscas?
+                  {resultado.classificacao.tipo === 'nao_contatar' ? (
+                    <>
+                      A empresa pediu para não receber mais emails. Encerrar a candidatura e mover a empresa para{' '}
+                      <b>Não contatar</b>? Ela não volta nas buscas e os contatos dela são apagados.
+                    </>
+                  ) : (
+                    <>
+                      Marcar a candidatura como <b>recusada</b> e <b>bloquear a empresa</b> para ela não voltar nas buscas?
+                    </>
+                  )}
                 </p>
                 <Button
                   className="mt-3"
                   disabled={!vaga || pendente}
-                  onClick={() => vaga && executar(() => aplicarRecusa(vaga.vagaId), 'Recusa registrada e empresa bloqueada')}
+                  onClick={() =>
+                    vaga &&
+                    executar(
+                      () => aplicarRecusa(vaga.vagaId),
+                      resultado.classificacao.tipo === 'nao_contatar'
+                        ? 'Empresa movida para Não contatar'
+                        : 'Recusa registrada e empresa bloqueada',
+                    )
+                  }
                 >
                   <Ban />
                   Aplicar
