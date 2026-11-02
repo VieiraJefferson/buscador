@@ -36,9 +36,9 @@ export async function POST(request: Request) {
         ? await proximosHorarios(supabase, user.id, classificacao.fuso_empresa, classificacao.idioma)
         : [];
     const { dados: perfil } = await carregarPerfil(supabase, user.id);
-    // Contatos pessoais ficam fora do prompt.
+    // Contatos pessoais ficam fora do prompt; os links também (vêm na assinatura do Gmail, ADR-0007).
     const { candidato, ...resto } = perfil as { candidato?: Record<string, unknown> };
-    const perfilSeguro = { candidato: { nome: candidato?.nome, cargo: candidato?.cargo, links: candidato?.links }, ...resto };
+    const perfilSeguro = { candidato: { nome: candidato?.nome, cargo: candidato?.cargo }, ...resto };
     const resposta = await escreverResposta({
       email: corpo.data.texto,
       classificacao,

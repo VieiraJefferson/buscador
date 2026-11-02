@@ -129,3 +129,14 @@ async def test_stack_incompativel_limita_a_nota_a_2():
     assert r.nota == 2
     assert r.stack_principal == ["Java", "Spring"]
     assert "stack_compativel" in cliente.chamadas[0]["system"][0]["text"]
+
+
+def test_email_nao_leva_links_porque_a_assinatura_do_gmail_ja_tem():
+    """ADR-0007: logo e links vêm da assinatura do Gmail; a IA não pode escrevê-los no corpo."""
+    perfil = {"candidato": {"nome": "Jefferson Vieira",
+                            "links": {"portfolio": "https://portfolio.exemplo/"}}}
+    ia = IA(perfil, cliente=_ClienteFalso())
+    sistema = ia._sistema_email[0]["text"]
+    assert "https://portfolio.exemplo/" not in sistema
+    assert "portfolio link" not in sistema
+    assert "signature" in sistema
