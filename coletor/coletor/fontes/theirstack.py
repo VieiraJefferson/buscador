@@ -16,7 +16,7 @@ URL = "https://api.theirstack.com/v1/jobs/search"
 LIMITE_MENSAL = 200
 ORCAMENTO_SEMANAL = 50
 # Divisão do orçamento semanal pela prioridade de país (ADR-0001, seção 2)
-DIVISAO = [(("ES",), 25), (("NL", "DE"), 15), (("PT",), 10)]
+DIVISAO = [(("ES",), 25), (("NL",), 15), (("PT",), 10)]  # Alemanha fora (2026-11-02)
 
 TITULOS = [
     "full stack", "fullstack", "frontend", "front end", "backend", "back end",

@@ -8,7 +8,7 @@ Agregadores: cada módulo expõe `FONTE` e `async vagas(rede)`.
 from . import (
     arbeitnow,
     ashby,
-    bundesagentur,
+    bundesagentur,  # noqa: F401 (desligada, mas o módulo e os testes continuam)
     greenhouse,
     himalayas,
     landing_jobs,
@@ -26,4 +26,5 @@ ATS = {
               personio)
 }
 
-AGREGADORES = [arbeitnow, himalayas, landing_jobs, bundesagentur]
+# Bundesagentur desligada em 2026-11-02 (só vagas na Alemanha, que saiu da busca).
+AGREGADORES = [arbeitnow, himalayas, landing_jobs]
