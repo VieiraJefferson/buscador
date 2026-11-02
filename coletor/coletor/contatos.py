@@ -1,4 +1,4 @@
-"""Contatos de email vindos das próprias fontes (por agora, o mailbox do Recruitee)."""
+"""Contatos de email: o mailbox do Recruitee (vem com a vaga) e o Apollo (ADR-0005)."""
 
 import re
 from dataclasses import dataclass
@@ -13,7 +13,9 @@ _TIPOS = {"recruitee": "ats_mailbox"}
 class Contato:
     email: str
     tipo: str  # ats_mailbox | generico | nominal (check do banco)
-    origem: str  # check do banco: recruitee, itjobs, join, site, padrao, hunter, manual
+    origem: str  # check do banco: recruitee, itjobs, join, site, padrao, hunter, manual, apollo
+    nome: str | None = None
+    cargo: str | None = None
 
 
 def de_vaga(v: Vaga) -> Contato | None:

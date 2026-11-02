@@ -19,11 +19,12 @@ from .config import (
     carregar_agencias,
     carregar_env_local,
     carregar_perfil,
+    chave_apollo,
     chave_theirstack,
     config_banco,
 )
 from .filtros import Decisao, Filtro
-from .fontes import theirstack
+from .fontes import apollo, theirstack
 from .modelos import Semente, Vaga
 from .rede import ErroFonte, Rede
 
@@ -244,6 +245,11 @@ MAX_EMAILS = int(os.environ.get("COLETOR_MAX_EMAILS", "20"))
 CONCORRENCIA_IA = int(os.environ.get("COLETOR_CONCORRENCIA_IA", "4"))
 LOTE_AVALIACOES = 200  # grava a cada lote: um timeout não perde o que já foi pago
 NOTA_MINIMA_EMAIL = 4
+# Apollo (ADR-0005): o plano Basic dá 2.500 créditos/mês; o teto deixa folga para uso manual.
+APOLLO_LIMITE_MENSAL = int(os.environ.get("APOLLO_LIMITE_MENSAL", "2000"))
+APOLLO_MAX_EMPRESAS = int(os.environ.get("APOLLO_MAX_EMPRESAS", "100"))
+APOLLO_CREDITOS_POR_EMPRESA = 1 + apollo.MAX_PESSOAS_REVELADAS  # pior caso
+APOLLO_ERROS_SEGUIDOS = 3  # chave inválida ou fora do ar: para em vez de insistir
 
 
 async def _ia(cfg, perfil: dict) -> None:
@@ -277,6 +283,7 @@ async def _ia(cfg, perfil: dict) -> None:
                     b.gravar_avaliacao(vaga_id, empresa_id, a)
         avaliacoes += lote
         log.info("IA: %d de %d avaliadas", len(avaliacoes), len(pendentes))
+    await _apollo(cfg)
     with Banco(cfg.url, cfg.owner_id) as b:
         candidatas = b.vagas_para_email(MAX_EMAILS, NOTA_MINIMA_EMAIL)
     log.info("IA: %d vagas avaliadas (%d sem resposta); %d candidatas a email",
@@ -299,6 +306,54 @@ async def _ia(cfg, perfil: dict) -> None:
             if e:
                 b.gravar_email(vaga_id, empresa_id, idioma, e.assunto, e.corpo, MODELO_EMAIL)
     log.info("IA: %d emails gerados", sum(1 for *_, e in emails if e))
+
+
+async def _apollo(cfg) -> None:
+    """Email de quem recruta nas empresas com vaga de nota 4 ou 5 (uma vez por empresa)."""
+    chave = chave_apollo()
+    if not chave:
+        log.info("Apollo: APOLLO_API_KEY ausente, etapa pulada")
+        return
+    from .banco import Banco
+
+    inicio = datetime.now(UTC)
+    with Banco(cfg.url, cfg.owner_id) as b:
+        orcamento = APOLLO_LIMITE_MENSAL - b.creditos_gastos_no_mes(apollo.FONTE)
+        empresas_alvo = b.empresas_para_apollo(APOLLO_MAX_EMPRESAS, NOTA_MINIMA_EMAIL)
+    log.info("Apollo: orçamento de %d créditos no mês; %d empresas a consultar",
+             max(orcamento, 0), len(empresas_alvo))
+    achados, erros, seguidos = 0, [], 0
+    async with Rede(concorrencia=2, por_host=2) as rede:
+        cliente = apollo.Apollo(rede, chave)
+        with Banco(cfg.url, cfg.owner_id) as b:
+            try:
+                for empresa_id, nome, dominio in empresas_alvo:
+                    if cliente.creditos + APOLLO_CREDITOS_POR_EMPRESA > orcamento:
+                        log.info("Apollo: teto mensal atingido, o resto fica para a próxima")
+                        break
+                    try:
+                        org, achado = await cliente.contato_da_empresa(nome, dominio)
+                    except ErroFonte as e:
+                        erros.append(str(e))
+                        seguidos += 1
+                        if seguidos >= APOLLO_ERROS_SEGUIDOS:
+                            log.warning("Apollo: %d erros seguidos (%s), etapa interrompida",
+                                        seguidos, e)
+                            break
+                        continue
+                    seguidos = 0
+                    c = None
+                    if achado:
+                        achados += 1
+                        c = contatos.Contato(email=achado.email, tipo="nominal", origem="apollo",
+                                             nome=achado.nome, cargo=achado.cargo)
+                    b.registrar_apollo(empresa_id, org.dominio if org else None, c)
+                    b.commit()  # cada empresa paga fica gravada, mesmo que a seguinte falhe
+            finally:
+                # vagas_lidas = créditos gastos (mesmo padrão do TheirStack)
+                b.registrar_execucao(apollo.FONTE, inicio, cliente.creditos, achados, erros)
+                b.commit()
+    log.info("Apollo: %d contatos encontrados, %d créditos gastos", achados, cliente.creditos)
 
 
 async def _relatorio(cfg, inicio: datetime, lidas: int, novas: int) -> None:

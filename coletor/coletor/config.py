@@ -49,6 +49,11 @@ def chave_theirstack() -> str | None:
     return os.environ.get("THEIRSTACK_API_KEY") or None
 
 
+def chave_apollo() -> str | None:
+    """Opcional: sem a chave, a etapa do Apollo é simplesmente pulada (ADR-0005)."""
+    return os.environ.get("APOLLO_API_KEY") or None
+
+
 def carregar_yaml(caminho: Path) -> dict:
     with caminho.open(encoding="utf-8") as f:
         return yaml.safe_load(f) or {}

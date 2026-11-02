@@ -167,11 +167,68 @@ class Banco:
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                insert into public.contatos (owner_id, empresa_id, email, tipo, origem)
-                values (%s, %s, %s, %s, %s)
+                insert into public.contatos (owner_id, empresa_id, email, tipo, origem, nome, cargo)
+                select %(o)s, %(e)s, %(m)s, %(t)s, %(g)s, %(n)s, %(c)s
+                where not exists (select 1 from public.empresas
+                                  where owner_id = %(o)s and id = %(e)s and bloqueada)
                 on conflict (owner_id, email) do nothing
                 """,
-                (self.owner, empresa_id, c.email, c.tipo, c.origem),
+                # Empresa bloqueada = oposição RGPD atendida: o contato não volta (ADR-0005).
+                {"o": self.owner, "e": empresa_id, "m": c.email, "t": c.tipo, "g": c.origem,
+                 "n": c.nome, "c": c.cargo},
+            )
+
+    # --- Apollo (ADR-0005) --------------------------------------------------------
+
+    def empresas_para_apollo(self, limite: int, nota_minima: int) -> list[tuple]:
+        """(id, nome, dominio) das empresas com vaga boa ainda não consultadas no Apollo."""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                select e.id, e.nome, e.dominio
+                from public.empresas e
+                join public.vagas v on v.empresa_id = e.id and v.owner_id = e.owner_id
+                where e.owner_id = %s and not e.bloqueada and not e.eh_agencia
+                  and e.apollo_consultado_em is null
+                  and v.ativa and not v.descartada and v.nota >= %s
+                group by e.id
+                order by min(v.prioridade_pais) nulls last, max(v.nota) desc
+                limit %s
+                """,
+                (self.owner, nota_minima, limite),
+            )
+            return cur.fetchall()
+
+    def registrar_apollo(self, empresa_id: UUID, dominio: str | None, c: Contato | None) -> None:
+        """Marca a consulta; grava o domínio se faltava (e não for de outra empresa) e o contato.
+        Os emails já gerados da empresa passam a apontar para o contato do Apollo."""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                update public.empresas e set apollo_consultado_em = now(),
+                    dominio = case when e.dominio is null and %(d)s::text is not null
+                                    and not exists (select 1 from public.empresas o
+                                                    where o.owner_id = e.owner_id
+                                                      and o.dominio = %(d)s)
+                                   then %(d)s else e.dominio end
+                where e.owner_id = %(o)s and e.id = %(e)s
+                """,
+                {"d": dominio, "o": self.owner, "e": empresa_id},
+            )
+        if c is None:
+            return
+        self.gravar_contato(empresa_id, c)
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                update public.emails_gerados g set contato_id = c.id
+                from public.contatos c, public.vagas v
+                where g.owner_id = %(o)s and c.owner_id = %(o)s and v.owner_id = %(o)s
+                  and c.email = %(m)s and c.empresa_id = %(e)s
+                  and v.id = g.vaga_id and v.empresa_id = %(e)s
+                  and g.contato_id is distinct from c.id
+                """,
+                {"o": self.owner, "m": c.email, "e": empresa_id},
             )
 
     def registrar_execucao(self, fonte: str, inicio: datetime, lidas: int, novas: int,
@@ -252,8 +309,9 @@ class Banco:
                      corpo: str, modelo: str) -> None:
         with self.conn.cursor() as cur:
             cur.execute(
+                # Apollo primeiro (decisão de 2026-11-02, ADR-0005); depois o mailbox do ATS.
                 "select id from public.contatos where owner_id = %s and empresa_id = %s "
-                "order by (tipo = 'nominal'), criado_em limit 1",
+                "order by (origem = 'apollo') desc, (tipo = 'nominal'), criado_em limit 1",
                 (self.owner, empresa_id),
             )
             contato = cur.fetchone()

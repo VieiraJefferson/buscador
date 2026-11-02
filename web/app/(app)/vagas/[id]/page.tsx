@@ -12,6 +12,12 @@ import { AcoesVaga } from './acoes';
 
 export const dynamic = 'force-dynamic';
 
+// "Marta Silva · Talent Acquisition · via Apollo": quem recebe, para conferir antes de enviar.
+function quemRecebe(c: { nome: string | null; cargo: string | null; origem: string }): string | null {
+  const partes = [c.nome, c.cargo, c.origem === 'apollo' ? 'via Apollo' : null].filter(Boolean);
+  return partes.length ? partes.join(' · ') : null;
+}
+
 export default async function VagaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!z.uuid().safeParse(id).success) notFound();
@@ -20,7 +26,7 @@ export default async function VagaPage({ params }: { params: Promise<{ id: strin
   const { data: v } = await supabase
     .from('vagas')
     .select(
-      'id, titulo, url, descricao, pais, cidade, regime, prioridade_pais, nota, nota_justificativa, consultoria, empresa_id, empresas(id, nome, bloqueada, dominio), emails_gerados(id, assunto, corpo, idioma, gerado_em, contatos(email)), candidaturas(estado, resposta_sugerida)',
+      'id, titulo, url, descricao, pais, cidade, regime, prioridade_pais, nota, nota_justificativa, consultoria, empresa_id, empresas(id, nome, bloqueada, dominio), emails_gerados(id, assunto, corpo, idioma, gerado_em, contatos(email, nome, cargo, origem)), candidaturas(estado, resposta_sugerida)',
     )
     .eq('owner_id', user.id)
     .eq('id', id)
@@ -34,7 +40,7 @@ export default async function VagaPage({ params }: { params: Promise<{ id: strin
     corpo: string;
     idioma: string;
     gerado_em: string;
-    contatos: { email: string } | null;
+    contatos: { email: string; nome: string | null; cargo: string | null; origem: string } | null;
   }[];
   const email = emails.sort((a, b) => b.gerado_em.localeCompare(a.gerado_em))[0] ?? null;
   const candidatura = (v.candidaturas as unknown as { estado: EstadoCandidatura; resposta_sugerida: string | null }[])[0];
@@ -64,7 +70,16 @@ export default async function VagaPage({ params }: { params: Promise<{ id: strin
         empresaId={empresa?.id ?? null}
         empresaBloqueada={empresa?.bloqueada ?? false}
         estado={candidatura?.estado ?? 'a_enviar'}
-        email={email ? { assunto: email.assunto, corpo: email.corpo, para: email.contatos?.email ?? null } : null}
+        email={
+          email
+            ? {
+                assunto: email.assunto,
+                corpo: email.corpo,
+                para: email.contatos?.email ?? null,
+                quem: email.contatos ? quemRecebe(email.contatos) : null,
+              }
+            : null
+        }
       />
 
       {candidatura?.resposta_sugerida && (

@@ -5,7 +5,15 @@ from types import SimpleNamespace
 import pytest
 
 from coletor import relatorio
-from coletor.ia import IA, Avaliacao, EmailGerado, EmailInvalido, _bloco_vaga, validar_email
+from coletor.ia import (
+    IA,
+    SAIDA_RGPD,
+    Avaliacao,
+    EmailGerado,
+    EmailInvalido,
+    _bloco_vaga,
+    validar_email,
+)
 
 PERFIL = {"candidato": {"nome": "Jefferson Vieira", "telefone": "nao-deve-ir"},
           "competencias": {"backend": ["Node.js"]}}
@@ -58,6 +66,19 @@ async def test_email_com_travessao_e_pedido_de_novo_e_o_limpo_e_aceito():
     assert c["betas"] == ["server-side-fallback-2026-07-01"]
     assert c["extra_body"] == {"fallbacks": "default"}
     assert "tools" not in c  # o modelo não tem ferramentas
+
+
+async def test_email_termina_com_a_saida_rgpd_no_idioma_da_vaga():
+    # RGPD (ADR-0005): quem recebe sempre tem como pedir para não receber mais. A linha é
+    # posta pelo código, não pela IA, para nunca faltar.
+    cliente = _ClienteFalso(emails=[_json_email("Hola", CORPO_OK), _json_email("Hi", CORPO_OK)])
+    ia = IA(PERFIL, cliente)
+    es = await ia.escrever_email("Dev", "X", "Madrid", "d", "es")
+    assert es.corpo.endswith(SAIDA_RGPD["es"])
+    outro = await ia.escrever_email("Dev", "X", "Y", "d", "outro")
+    assert outro.corpo.endswith(SAIDA_RGPD["en"])
+    for texto in SAIDA_RGPD.values():
+        assert not any(t in texto for t in ("—", "–"))
 
 
 async def test_email_desiste_depois_de_duas_tentativas_ruins():

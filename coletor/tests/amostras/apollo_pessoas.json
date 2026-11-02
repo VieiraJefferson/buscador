@@ -1,0 +1,7 @@
+{"people": [
+  {"id": "p-ceo", "first_name": "Ana", "title": "CEO", "has_email": true},
+  {"id": "p-sem-email", "first_name": "Rui", "title": "Technical Recruiter", "has_email": false},
+  {"id": "p-vendas", "first_name": "Eva", "title": "Sales Manager", "has_email": true},
+  {"id": "p-em", "first_name": "Luis", "title": "Engineering Manager", "has_email": true},
+  {"id": "p-ta", "first_name": "Marta", "title": "Talent Acquisition Partner", "has_email": true}
+]}

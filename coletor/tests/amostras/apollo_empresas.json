@@ -1,0 +1,4 @@
+{"organizations": [
+  {"id": "org-homonima", "name": "Exemplo Labs", "primary_domain": "exemplolabs.io"},
+  {"id": "org-1", "name": "Exemplo GmbH", "primary_domain": "www.Exemplo.com"}
+]}

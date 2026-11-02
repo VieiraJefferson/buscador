@@ -4,7 +4,7 @@ Resumo vivo das decisões em vigor. O detalhe e o porquê estão nos ADRs
 ([`decisions/`](decisions/)); a história de cada sessão, no [`diario/`](diario/). Quando uma
 decisão muda, este arquivo é atualizado e o ADR também.
 
-**Última atualização:** 2026-10-14
+**Última atualização:** 2026-11-02
 
 ## Produto
 
@@ -13,7 +13,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | O que é | Buscador e alerta pessoal de vagas tech na UE. Gera o email de candidatura; o Jefferson envia manualmente. | ADR-0001 |
 | LinkedIn | **Não usa.** Muitas agências e vagas irreais, e os termos proíbem robôs. | ADR-0001 |
 | Brasil | **Fora.** Só vagas na Europa. | ADR-0001 |
-| Países (ordem) | 1. Espanha · 2. Holanda e Alemanha · 3. Portugal · 4. resto da UE | ADR-0001 |
+| Países (ordem) | 1. Espanha · 2. Holanda · 3. Portugal · 4. resto da UE. **Alemanha fora desde 2026-11-02** (`excluir_paises`; Bundesagentur desligada). | ADR-0001, diário de 2026-11-02 |
 | Regime | Remoto ou híbrido em todos. Presencial excluído. | ADR-0001 |
 | Senioridade | **Mid e senior.** Júnior, estágio, lead, staff, principal, architect e gestão ficam fora. O CV usa o título neutro "Full-Stack Software Engineer & Architect", sem "Senior", para não perder vagas mid. | Diário de 2026-10-13 |
 | Idioma | Exclui vagas que exigem alemão ou holandês fluente. O Jefferson fala PT, EN e ES. | ADR-0001 |
@@ -22,7 +22,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 | Stack | **A IA decide** se a linguagem principal da vaga bate com as competências do perfil, sem lista manual; se não bate, nota no máximo 2 (teto garantido no código). Site e relatório mostram por padrão só nota 3 ou mais. | [Plano de 2026-10-14](planos/2026-10-14-filtro-stack-e-descarte.md) |
 | Descarte | `descartada` é separado de `ativa`: o que o Jefferson ou a IA descartam nunca volta na varredura. | Migration 0004 |
 | Descoberta de empresas | **"Empresa primeiro", custo zero:** listas abertas de empresas por ATS (~24 mil), listas por país e TheirStack grátis; vagas lidas nas APIs públicas dos ATS. Os portais grandes (InfoJobs, Indeed) não são fonte; o Tecnoempleo é dominado por intermediários. Planos pagos não usados. | ADR-0001, pesquisa de 2026-10-13 |
-| Contato | Email direto da empresa. Prioridade: `mailbox_email` do Recruitee e email da fonte, depois o site da empresa e padrões genéricos (`careers@`…). Preferência por emails genéricos (RGPD). | ADR-0001 |
+| Contato | **Apollo** (plano Basic) acha o email verificado de quem recruta, **só nas empresas com vaga de nota 4 ou 5**, uma vez por empresa, com teto de 2.000 créditos por mês. Vai no "Para" antes do `mailbox_email` do Recruitee. | ADR-0005 |
 | Envio | **Manual.** Nada sai automaticamente. Meta de ~100 candidaturas por semana. | ADR-0001 |
 | Email gerado | Sem texto fixo: escrito para cada vaga. **Proibidos "—" e "–".** Sempre como candidato. No idioma da vaga. | ADR-0001 |
 | Resposta a recrutadores | Manual, com o assistente: o Jefferson cola o email e recebe a resposta. O email colado não é guardado. | ADR-0001, ADR-0002 |
@@ -61,7 +61,7 @@ decisão muda, este arquivo é atualizado e o ADR também.
 - Morada, telefone e o PDF do CV nunca entram no git nem no banco.
 - Contatos apagados 12 meses depois (`apagar_apos`).
 - Repositório privado; a base de contatos nunca é publicada.
-- Sem Apollo nem bases derivadas do LinkedIn.
+- Apollo só depois do filtro e da nota, só emails profissionais verificados, nada vai para o prompt da IA (ADR-0005). Gmail não ligado ao Apollo; extensão do Chrome não usada.
 
 ## Forma de trabalhar
 

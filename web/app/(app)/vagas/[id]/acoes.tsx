@@ -17,7 +17,7 @@ type Props = {
   empresaId: string | null;
   empresaBloqueada: boolean;
   estado: EstadoCandidatura;
-  email: { assunto: string; corpo: string; para: string | null } | null;
+  email: { assunto: string; corpo: string; para: string | null; quem: string | null } | null;
 };
 
 // Links mailto muito longos falham em alguns apps: acima disto, o botão copia o texto.
@@ -65,7 +65,7 @@ export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }
         titulo="Email de candidatura"
         descricao={
           email
-            ? `Para: ${email.para ?? 'contato não encontrado (veja o anúncio)'}`
+            ? `Para: ${email.para ?? 'contato não encontrado (veja o anúncio)'}${email.para && email.quem ? ` (${email.quem})` : ''}`
             : 'Ainda sem email gerado. A IA escreve os emails das vagas com nota 4 ou 5 na próxima varredura.'
         }
       >
@@ -119,7 +119,7 @@ export function AcoesVaga({ vagaId, empresaId, empresaBloqueada, estado, email }
             onClick={() =>
               executar(
                 () => bloquearEmpresa(empresaId, !empresaBloqueada),
-                empresaBloqueada ? 'Empresa desbloqueada' : 'Empresa bloqueada: não volta nas buscas',
+                empresaBloqueada ? 'Empresa desbloqueada' : 'Empresa bloqueada e contatos apagados',
               )
             }
           >

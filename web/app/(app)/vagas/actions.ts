@@ -53,6 +53,15 @@ export async function bloquearEmpresa(empresaIdBruto: string, bloquear: boolean)
     .eq('owner_id', user.id)
     .eq('id', empresaId);
   if (error) throw new Error('Falha ao atualizar a empresa');
+  if (bloquear) {
+    // Oposição RGPD (ADR-0005): bloquear apaga os contatos guardados da empresa.
+    const { error: erroContatos } = await supabase
+      .from('contatos')
+      .delete()
+      .eq('owner_id', user.id)
+      .eq('empresa_id', empresaId);
+    if (erroContatos) throw new Error('Empresa bloqueada, mas os contatos não foram apagados');
+  }
   revalidatePath('/vagas');
 }
 
